@@ -3,2285 +3,1129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Max</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
+    <title>টাকা আয় করুন - বিজ্ঞাপন দেখুন</title>
+    <!-- Monetag SDK শুধুমাত্র বিজ্ঞাপন দেখানোর জন্য -->
+    <script src='//libtl.com/sdk.js' data-zone='10563791' data-sdk='show_10563791'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #ff7d4a;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --card-bg: #16213e;
+            --text-color: #e6e6e6;
+            --text-muted: #adb5bd;
+        }
+        
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background-color: #f9f9f9;
-            color: #333;
-            max-width: 500px;
-            margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: var(--text-color);
+            line-height: 1.6;
             min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        /* Header Styles */
-        header {
-            background-color: #ff0000;
-            color: white;
+            display: flex;
+            flex-direction: column;
             padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            padding-bottom: 70px; /* নেভিগেশন বারের জন্য স্থান */
         }
         
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo i {
-            margin-right: 8px;
-        }
-        
-        .header-icons {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .header-icons i {
-            font-size: 20px;
-            cursor: pointer;
-        }
-        
-        /* Navigation Styles */
-        nav {
-            background-color: white;
-            padding: 10px 15px;
-            overflow-x: auto;
-            white-space: nowrap;
-            border-bottom: 1px solid #e5e5e5;
-        }
-        
-        nav a {
-            display: inline-block;
-            padding: 8px 15px;
-            margin-right: 10px;
-            background-color: #f2f2f2;
-            border-radius: 20px;
-            text-decoration: none;
-            color: #333;
-            font-size: 14px;
-        }
-        
-        nav a.active {
-            background-color: #333;
-            color: white;
-        }
-        
-        /* Main Content Styles */
-        main {
-            padding-bottom: 70px;
-        }
-        
-        .video-container {
-            margin-bottom: 15px;
-            background-color: white;
-            border-radius: 8px;
+        .container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(22, 33, 62, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            cursor: pointer;
+            padding-bottom: 20px;
+            backdrop-filter: blur(10px);
         }
         
-        .video-thumbnail {
-            width: 100%;
-            height: 200px;
-            background-color: #333;
-            position: relative;
-        }
-        
-        .video-thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .video-duration {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: rgba(0,0,0,0.7);
+        .header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            border-bottom: 5px solid rgba(255, 255, 255, 0.1);
         }
         
-        .video-info {
-            padding: 10px 15px;
-        }
-        
-        .video-title {
-            font-weight: bold;
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
             margin-bottom: 5px;
-            font-size: 16px;
         }
         
-        .video-meta {
-            display: flex;
-            justify-content: space-between;
-            color: #606060;
-            font-size: 14px;
-        }
-        
-        .video-actions {
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid #e5e5e5;
+        .badge {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
             margin-top: 10px;
         }
         
-        .action-btn {
+        .user-card, .stat-card, .progress-container, .referral-section, .rate-info, .withdraw-section, .ad-status {
+            background-color: var(--card-bg);
+            margin: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-card {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            font-size: 12px;
-            color: #606060;
-            cursor: pointer;
         }
         
-        .action-btn i {
-            font-size: 18px;
-            margin-bottom: 3px;
-        }
-        
-        .action-btn.liked {
-            color: #ff0000;
-        }
-        
-        /* Video Player Screen */
-        .video-player-screen {
-            background-color: black;
-            height: 100vh;
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: white;
+            margin-right: 15px;
         }
         
-        .video-player-header {
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-card {
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card h3 {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        
+        .stat-card p {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .progress-container {
+            background: linear-gradient(to right, #0f0c29, #302b63);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            color: white;
-            background-color: rgba(0,0,0,0.5);
+            margin-bottom: 15px;
         }
         
-        .video-player {
-            flex: 1;
+        .progress-bar {
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin: 15px;
+        }
+        
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
-        .video-player video {
-            width: 100%;
-            max-height: 100%;
+        .btn-primary { 
+            background: linear-gradient(to right, var(--primary-color), #6a11cb);
+            color: white; 
         }
         
-        .video-player-controls {
-            padding: 15px;
-            color: white;
-            background-color: rgba(0,0,0,0.5);
+        .btn-success { 
+            background: linear-gradient(to right, var(--success-color), #11998e);
+            color: white; 
         }
         
-        .video-player-title {
+        .btn-danger { 
+            background: linear-gradient(to right, var(--danger-color), #ff416c);
+            color: white; 
+        }
+        
+        .btn-warning { 
+            background: linear-gradient(to right, var(--warning-color), #ff7e5f);
+            color: white; 
+        }
+        
+        .btn-secondary { 
+            background: linear-gradient(to right, #2c3e50, #4ca1af);
+            color: var(--text-color); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        
+        .btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+        }
+        
+        .btn:active { 
+            transform: translateY(0); 
+        }
+        
+        .btn:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+            transform: none; 
+            box-shadow: none; 
+        }
+        
+        .btn i { 
+            margin-right: 8px; 
+            font-size: 18px; 
+        }
+        
+        .section-title {
             font-size: 18px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            color: white;
+            display: flex;
+            align-items: center;
         }
         
-        .video-player-meta {
+        .section-title i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .referral-stats {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
-            color: #ccc;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
         
-        /* Bottom Navigation */
+        .referral-link-container {
+            display: flex;
+            margin-top: 15px;
+        }
+        
+        #referral-link {
+            flex: 1;
+            padding: 12px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px 0 0 8px;
+            color: var(--text-color);
+            font-size: 14px;
+            outline: none;
+        }
+        
+        #copy-referral {
+            padding: 0 15px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 0 8px 8px 0;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #copy-referral:hover {
+            opacity: 0.9;
+        }
+        
+        .withdraw-section { 
+            display: none; 
+        }
+        
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 107, 255, 0.3);
+        }
+        
+        #withdraw-status {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .success-message { 
+            background-color: rgba(40, 167, 69, 0.2); 
+            color: var(--success-color); 
+        }
+        
+        .error-message { 
+            background-color: rgba(220, 53, 69, 0.2); 
+            color: var(--danger-color); 
+        }
+        
+        .info-message { 
+            background-color: rgba(74, 107, 255, 0.2); 
+            color: var(--primary-color); 
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: var(--card-bg);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        .notification.success {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .notification.error {
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .notification.info {
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse { 
+            animation: pulse 1.5s infinite; 
+        }
+        
+        @keyframes coinAnimation {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        
+        .coin-animation {
+            position: absolute;
+            font-size: 24px;
+            color: gold;
+            z-index: 100;
+            animation: coinAnimation 1s forwards;
+        }
+        
+        /* নেভিগেশন বার স্টাইল */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: white;
+            background: var(--card-bg);
             display: flex;
             justify-content: space-around;
             padding: 10px 0;
-            border-top: 1px solid #e5e5e5;
-            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
         }
         
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
+            text-align: center;
+            color: var(--text-muted);
+            text-decoration: none;
             font-size: 12px;
-            color: #606060;
-            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 10px;
+            width: 25%;
         }
         
         .nav-item.active {
-            color: #ff0000;
+            color: var(--primary-color);
+            background: rgba(74, 107, 255, 0.2);
         }
         
         .nav-item i {
             font-size: 20px;
-            margin-bottom: 3px;
-        }
-        
-        /* Authentication Screens */
-        .auth-screen {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 80vh;
-        }
-        
-        .auth-form {
-            width: 100%;
-            max-width: 350px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .auth-form h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #ff0000;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        
-        .auth-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .auth-switch {
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .auth-switch a {
-            color: #ff0000;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        /* Profile Screen */
-        .profile-screen {
-            padding: 20px;
-        }
-        
-        .profile-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #ddd;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            color: #777;
-        }
-        
-        .profile-info h2 {
             margin-bottom: 5px;
         }
         
-        .profile-stats {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
+        .nav-item:hover {
+            color: var(--primary-color);
         }
         
-        .stat {
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #606060;
-        }
-        
-        .profile-actions {
-            display: flex;
-            gap: 10px;
-            margin: 20px 0;
-        }
-        
-        .profile-btn {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            background-color: #f2f2f2;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .profile-btn.primary {
-            background-color: #ff0000;
-            color: white;
-        }
-        
-        .profile-details {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        
-        .profile-detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .profile-detail-item:last-child {
-            border-bottom: none;
-        }
-        
-        .detail-label {
-            font-weight: 500;
-            color: #606060;
-        }
-        
-        /* Messenger Screens */
-        .messenger-screen {
-            padding: 15px;
-            height: calc(100vh - 140px);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .new-message-btn {
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 24px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .chat-list {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex: 1;
-            overflow-y: auto;
-        }
-        
-        .chat-item {
-            display: flex;
-            padding: 15px;
-            border-bottom: 1px solid #e5e5e5;
-            cursor: pointer;
-        }
-        
-        .chat-item:last-child {
-            border-bottom: none;
-        }
-        
-        .chat-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #ddd;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #777;
-        }
-        
-        .chat-info {
-            flex: 1;
-        }
-        
-        .chat-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .chat-last-msg {
-            color: #606060;
-            font-size: 14px;
-        }
-        
-        .chat-time {
-            font-size: 12px;
-            color: #909090;
-        }
-        
-        /* Individual Chat Screen */
-        .chat-screen {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: white;
-        }
-        
-        .chat-header {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background-color: #ff0000;
-            color: white;
-        }
-        
-        .chat-header-info {
-            flex: 1;
-            margin-left: 15px;
-        }
-        
-        .chat-header-name {
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .chat-header-status {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-        
-        .chat-call-options {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .chat-call-options i {
-            font-size: 20px;
-            cursor: pointer;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .message {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            position: relative;
-        }
-        
-        .message.received {
-            align-self: flex-start;
-            background-color: #f0f0f0;
-            border-top-left-radius: 4px;
-        }
-        
-        .message.sent {
-            align-self: flex-end;
-            background-color: #ff0000;
-            color: white;
-            border-top-right-radius: 4px;
-        }
-        
-        .message-time {
-            font-size: 11px;
-            margin-top: 5px;
-            opacity: 0.7;
-            text-align: right;
-        }
-        
-        .message-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        
-        .message-action-btn {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            font-size: 12px;
-            padding: 2px 5px;
-        }
-        
-        .message-action-btn:hover {
-            color: #ff0000;
-        }
-        
-        .chat-input-area {
-            display: flex;
-            padding: 15px;
-            border-top: 1px solid #e5e5e5;
-            gap: 10px;
-        }
-        
-        .chat-input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #e5e5e5;
-            border-radius: 24px;
-            font-size: 16px;
-        }
-        
-        .send-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        
-        /* Call Screen */
-        .call-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: black;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-        }
-        
-        .call-screen.active {
-            display: flex;
-        }
-        
-        .call-video-container {
-            flex: 1;
-            position: relative;
-        }
-        
-        .remote-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .local-video {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 120px;
-            height: 160px;
-            border: 2px solid white;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-        
-        .call-controls {
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .call-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        
-        .call-btn.end-call {
-            background-color: #ff0000;
-            color: white;
-        }
-        
-        .call-btn.accept-call {
-            background-color: #25D366;
-            color: white;
-        }
-        
-        .call-info {
-            position: absolute;
-            top: 20px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            color: white;
-        }
-        
-        /* New Message Screen */
-        .new-message-screen {
-            padding: 15px;
-            height: calc(100vh - 140px);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .search-user-box {
-            display: flex;
-            margin-bottom: 20px;
-            gap: 10px;
-        }
-        
-        .search-user-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 24px;
-            font-size: 16px;
-        }
-        
-        .search-user-btn {
-            padding: 0 20px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 24px;
-            cursor: pointer;
-        }
-        
-        .user-results {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex: 1;
-            overflow-y: auto;
-        }
-        
-        .user-result-item {
-            display: flex;
-            padding: 15px;
-            border-bottom: 1px solid #e5e5e5;
-            cursor: pointer;
-        }
-        
-        .user-result-item:last-child {
-            border-bottom: none;
-        }
-        
-        .user-result-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #ddd;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #777;
-        }
-        
-        .user-result-info {
-            flex: 1;
-        }
-        
-        .user-result-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .user-result-username {
-            color: #606060;
-            font-size: 14px;
-        }
-        
-        /* Virtual Keyboard */
-        .virtual-keyboard {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: #f0f0f0;
-            padding: 10px;
-            border-top: 1px solid #ddd;
-            display: none;
-            z-index: 1000;
-        }
-        
-        .keyboard-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .keyboard-key {
-            flex: 1;
-            height: 45px;
-            margin: 0 3px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .keyboard-key.space {
-            flex: 4;
-        }
-        
-        .keyboard-key.enter {
-            flex: 2;
-            background-color: #ff0000;
-            color: white;
-        }
-        
-        .keyboard-key.backspace {
-            flex: 2;
-            background-color: #666;
-            color: white;
-        }
-        
-        .keyboard-key:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .keyboard-key.enter:hover {
-            background-color: #cc0000;
-        }
-        
-        .keyboard-key.backspace:hover {
-            background-color: #555;
-        }
-        
-        /* Search Screen */
-        .search-screen {
-            padding: 15px;
-        }
-        
-        .search-box {
-            display: flex;
-            margin-bottom: 20px;
-            gap: 10px;
-        }
-        
-        .search-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 24px;
-            font-size: 16px;
-        }
-        
-        .search-btn {
-            padding: 0 20px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 24px;
-            cursor: pointer;
-        }
-        
-        .search-results {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .search-result-item {
-            display: flex;
-            padding: 15px;
-            border-bottom: 1px solid #e5e5e5;
-            cursor: pointer;
-        }
-        
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-        
-        .search-result-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #ddd;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #777;
-        }
-        
-        .search-result-info {
-            flex: 1;
-        }
-        
-        .search-result-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .search-result-username {
-            color: #606060;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        
-        .search-result-bio {
-            color: #909090;
-            font-size: 13px;
-        }
-        
-        .add-friend-btn {
-            padding: 8px 15px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .add-friend-btn.added {
-            background-color: #25D366;
-        }
-        
-        /* Friends Screen */
-        .friends-screen {
-            padding: 15px;
-        }
-        
-        .friends-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e5e5e5;
-        }
-        
-        .friend-tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-        
-        .friend-tab.active {
-            border-bottom: 2px solid #ff0000;
-            color: #ff0000;
-            font-weight: 500;
-        }
-        
-        .friends-list {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .friend-item {
-            display: flex;
-            padding: 15px;
-            border-bottom: 1px solid #e5e5e5;
-        }
-        
-        .friend-item:last-child {
-            border-bottom: none;
-        }
-        
-        .friend-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #ddd;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #777;
-        }
-        
-        .friend-info {
-            flex: 1;
-        }
-        
-        .friend-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .friend-username {
-            color: #606060;
-            font-size: 14px;
-        }
-        
-        .friend-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .message-friend-btn {
-            padding: 8px 15px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        /* Upload Screen */
-        .upload-screen {
-            padding: 20px;
-        }
-        
-        .upload-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e5e5e5;
-        }
-        
-        .upload-tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-        
-        .upload-tab.active {
-            border-bottom: 2px solid #ff0000;
-            color: #ff0000;
-            font-weight: 500;
-        }
-        
-        .upload-section {
+        /* পেজ সেকশন স্টাইল */
+        .page-section {
             display: none;
         }
         
-        .upload-section.active {
+        .page-section.active {
             display: block;
         }
         
-        .upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 40px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-        
-        .upload-area i {
-            font-size: 40px;
-            color: #606060;
-            margin-bottom: 10px;
-        }
-        
-        .upload-form {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .video-url-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-        
-        .url-upload-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .upload-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-        
-        /* Utility Classes */
-        .hidden {
-            display: none;
-        }
-        
-        .screen {
-            display: none;
-        }
-        
-        .screen.active {
-            display: block;
-        }
-        
-        .back-btn {
-            cursor: pointer;
-        }
-        
-        .welcome-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            padding: 20px;
-            text-align: center;
-            background-color: #ff0000;
-            color: white;
-        }
-        
-        .welcome-screen h1 {
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-        
-        .welcome-screen p {
-            margin-bottom: 30px;
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        
-        .welcome-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-            max-width: 300px;
-        }
-        
-        .welcome-btn {
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
-        .welcome-btn.primary {
-            background-color: white;
-            color: #ff0000;
-        }
-        
-        .welcome-btn.secondary {
-            background-color: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-        
-        /* Incoming Call Notification */
-        .incoming-call {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            z-index: 2000;
-            text-align: center;
-            display: none;
-        }
-        
-        .incoming-call.active {
-            display: block;
-        }
-        
-        .caller-info {
-            margin-bottom: 20px;
-        }
-        
-        .call-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .call-action-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        .accept-call-btn {
-            background-color: #25D366;
-            color: white;
-        }
-        
-        .reject-call-btn {
-            background-color: #ff0000;
-            color: white;
+        @media (max-width: 400px) {
+            .header h1 { font-size: 20px; }
+            .stats-container { grid-template-columns: 1fr; }
+            .btn { padding: 12px; font-size: 14px; }
+            .nav-item { font-size: 10px; padding: 5px; }
+            .nav-item i { font-size: 18px; }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Welcome Screen -->
-    <div id="welcome-screen" class="screen active">
-        <div class="welcome-screen">
-            <div class="logo" style="font-size: 28px; margin-bottom: 20px;">
-                <i class="fab fa-youtube"></i> YouTube Max
-            </div>
-            <h1>YouTube Max এ স্বাগতম</h1>
-            <p>ভিডিও দেখুন, বন্ধুদের সাথে কানেক্ট হোন এবং মেসেজ আদান-প্রদান করুন</p>
-            <div class="welcome-buttons">
-                <button class="welcome-btn primary" onclick="showScreen('login-screen')">লগ ইন</button>
-                <button class="welcome-btn secondary" onclick="showScreen('signup-screen')">সাইন আপ</button>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>টাকা আয় করুন - বিজ্ঞাপন দেখুন</h1>
+            <p>বিজ্ঞাপন দেখে আসল টাকা আয় করুন</p>
+            <div class="badge">সক্রিয়</div>
         </div>
-    </div>
-    
-    <!-- Header -->
-    <header id="app-header" class="hidden">
-        <div class="logo">
-            <i class="fab fa-youtube"></i> YouTube Max
-        </div>
-        <div class="header-icons">
-            <i class="fas fa-search" onclick="showScreen('search-screen')"></i>
-            <i class="fas fa-user-friends" onclick="showScreen('friends-screen')"></i>
-            <i class="fas fa-ellipsis-v"></i>
-        </div>
-    </header>
-    
-    <!-- Navigation -->
-    <nav id="app-nav" class="hidden">
-        <a href="#" class="active">সব</a>
-        <a href="#">গান</a>
-        <a href="#">খেলা</a>
-        <a href="#">লাইভ</a>
-        <a href="#">রান্না</a>
-        <a href="#">কমেডি</a>
-        <a href="#">শিক্ষামূলক</a>
-    </nav>
-    
-    <!-- Main Content -->
-    <main id="home-screen" class="screen">
-        <!-- Video 1 -->
-        <div class="video-container" onclick="openVideo('বাংলাদেশের সেরা ১০টি পর্যটন স্থান', 'ট্রাভেল বাংলাদেশ', '২.৫ লাখ ভিউ • ৩ দিন আগে', 'video1')">
-            <div class="video-thumbnail">
-                <img src="https://via.placeholder.com/500x280/ff0000/ffffff?text=YouTube+Max" alt="Video Thumbnail">
-                <div class="video-duration">10:25</div>
-            </div>
-            <div class="video-info">
-                <div class="video-title">বাংলাদেশের সেরা ১০টি পর্যটন স্থান</div>
-                <div class="video-meta">
-                    <span>ট্রাভেল বাংলাদেশ</span>
-                    <span>২.৫ লাখ ভিউ • ৩ দিন আগে</span>
+        
+        <!-- হোম পেজ -->
+        <div class="page-section active" id="home-page">
+            <div class="user-card">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="user-info">
+                    <h3 id="user-name">ব্যবহারকারী</h3>
+                    <p>আইডি: <span id="user-id">12345</span></p>
                 </div>
-                <div class="video-actions">
-                    <div class="action-btn" onclick="event.stopPropagation(); toggleLike(this)">
-                        <i class="far fa-thumbs-up"></i>
-                        <span>লাইক</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="far fa-thumbs-down"></i>
-                        <span>ডিসলাইক</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="far fa-comment"></i>
-                        <span>কমেন্ট</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="fas fa-share"></i>
-                        <span>শেয়ার</span>
-                    </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>দেখা বিজ্ঞাপন</h3>
+                    <p id="watched-ads">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>আয়কৃত টাকা</h3>
+                    <p id="earned-money">0.00 <small>টাকা</small></p>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-header">
+                    <h3>আজকের অগ্রগতি</h3>
+                    <span id="ads-progress">0/10</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text">
+                    <span>0 টাকা</span>
+                    <span>200 টাকা</span>
+                </div>
+            </div>
+            
+            <div class="ad-status" id="ad-status">
+                <i class="fas fa-check-circle"></i> বিজ্ঞাপন দেখতে প্রস্তুত
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="watch-ad-btn" onclick="watchAd()">
+                    <i class="fas fa-play"></i> বিজ্ঞাপন দেখুন (২ টাকা)
+                </button>
+                <button class="btn btn-success" id="auto-ad-btn" onclick="startAutoAds()">
+                    <i class="fas fa-robot"></i> স্বয়ংক্রিয় বিজ্ঞাপন
+                </button>
+                <button class="btn btn-danger" id="stop-auto-btn" onclick="stopAutoAds()" disabled>
+                    <i class="fas fa-stop"></i> বন্ধ করুন
+                </button>
+                <button class="btn btn-secondary" onclick="showWithdrawForm()">
+                    <i class="fas fa-wallet"></i> টাকা উত্তোলন
+                </button>
+                
+                <!-- নতুন Income Now বাটন -->
+                <a href="https://myearningzone.com/register?ref=502849" target="_blank" class="btn btn-warning pulse" style="text-decoration: none;">
+                    <i class="fas fa-bolt"></i> Income Now - মাত্র ৫০ টাকায়!
+                </a>
+            </div>
+            
+            <div class="referral-section">
+                <h3 class="section-title"><i class="fas fa-users"></i> বন্ধুকে আমন্ত্রণ করুন</h3>
+                <div class="referral-stats">
+                    <div>আমন্ত্রিত: <strong id="referral-count">0</strong></div>
+                    <div>আয়: <strong id="referral-earnings">0.00</strong> টাকা</div>
+                </div>
+                <p style="font-size: 14px; margin-bottom: 10px;">আপনার রেফারেল লিঙ্ক শেয়ার করুন এবং প্রতিটি বন্ধুর জন্য ৫ টাকা বোনাস পান!</p>
+                <div class="referral-link-container">
+                    <input type="text" id="referral-link" readonly>
+                    <button id="copy-referral" onclick="copyReferralLink()">কপি</button>
+                </div>
+            </div>
+            
+            <div class="rate-info">
+                <p><i class="fas fa-ad"></i> প্রতি বিজ্ঞাপন = ২ টাকা</p>
+                <p><i class="fas fa-money-bill-wave"></i> ন্যূনতম উত্তোলন: ২০০ টাকা</p>
+                <p><i class="fas fa-gift"></i> রেফারেল বোনাস: ৫ টাকা প্রতি ব্যবহারকারী</p>
+            </div>
+        </div>
+        
+        <!-- আর্ন পেজ -->
+        <div class="page-section" id="earn-page">
+            <h3 class="section-title"><i class="fas fa-coins"></i> টাকা আয় করার উপায়</h3>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="watch-ad-btn-earn" onclick="watchAd()">
+                    <i class="fas fa-play"></i> বিজ্ঞাপন দেখুন (২ টাকা)
+                </button>
+                <button class="btn btn-success" id="auto-ad-btn-earn" onclick="startAutoAds()">
+                    <i class="fas fa-robot"></i> স্বয়ংক্রিয় বিজ্ঞাপন
+                </button>
+                <button class="btn btn-danger" id="stop-auto-btn-earn" onclick="stopAutoAds()" disabled>
+                    <i class="fas fa-stop"></i> বন্ধ করুন
+                </button>
+                
+                <!-- নতুন Income Now বাটন -->
+                <a href="https://myearningzone.com/register?ref=502849" target="_blank" class="btn btn-warning pulse" style="text-decoration: none;">
+                    <i class="fas fa-bolt"></i> Income Now - মাত্র ৫০ টাকায়!
+                </a>
+            </div>
+            
+            <div class="referral-section">
+                <h3 class="section-title"><i class="fas fa-users"></i> বন্ধুকে আমন্ত্রণ করুন</h3>
+                <div class="referral-stats">
+                    <div>আমন্ত্রিত: <strong id="referral-count-earn">0</strong></div>
+                    <div>আয়: <strong id="referral-earnings-earn">0.00</strong> টাকা</div>
+                </div>
+                <p style="font-size: 14px; margin-bottom: 10px;">আপনার রেফারেল লিঙ্ক শেয়ার করুন এবং প্রতিটি বন্ধুর জন্য ৫ টাকা বোনাস পান!</p>
+                <div class="referral-link-container">
+                    <input type="text" id="referral-link-earn" readonly>
+                    <button id="copy-referral-earn" onclick="copyReferralLink()">কপি</button>
+                </div>
+            </div>
+            
+            <div class="rate-info">
+                <p><i class="fas fa-ad"></i> প্রতি বিজ্ঞাপন = ২ টাকা</p>
+                <p><i class="fas fa-gift"></i> রেফারেল বোনাস: ৫ টাকা প্রতি ব্যবহারকারী</p>
+            </div>
+        </div>
+        
+        <!-- উত্তোলন পেজ -->
+        <div class="page-section" id="withdraw-page">
+            <h3 class="section-title"><i class="fas fa-wallet"></i> টাকা উত্তোলন</h3>
+            
+            <div class="stat-card">
+                <h3>মোট আয়</h3>
+                <p id="total-earned-withdraw">0.00 <small>টাকা</small></p>
+            </div>
+            
+            <div class="withdraw-section" id="withdraw-section">
+                <div class="form-group">
+                    <label for="withdraw-amount">পরিমাণ (টাকা)</label>
+                    <input type="number" id="withdraw-amount" class="form-control" placeholder="টাকার পরিমাণ লিখুন" min="20">
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">পেমেন্ট মাধ্যম</label>
+                    <select id="payment-method" class="form-control">
+                        <option value="" disabled selected>পেমেন্ট মাধ্যম নির্বাচন করুন</option>
+                        <option value="bkash">bKash</option>
+                        <option value="nagad">Nagad</option>
+                        <option value="rocket">Rocket</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="withdraw-phone">মোবাইল নম্বর</label>
+                    <input type="text" id="withdraw-phone" class="form-control" placeholder="01XXXXXXXXX" pattern="01[3-9]{1}[0-9]{8}">
+                </div>
+                <button class="btn btn-primary" onclick="withdrawPoints()">
+                    <i class="fas fa-paper-plane"></i> অনুরোধ পাঠান
+                </button>
+                <div id="withdraw-status"></div>
+            </div>
+            
+            <div class="rate-info">
+                <p><i class="fas fa-money-bill-wave"></i> ন্যূনতম উত্তোলন: ২০ টাকা</p>
+                <p><i class="fas fa-clock"></i> উত্তোলন প্রসেসিং সময়: ২৪-৪৮ ঘন্টা</p>
+            </div>
+        </div>
+        
+        <!-- নোটিশ পেজ -->
+        <div class="page-section" id="notice-page">
+            <h3 class="section-title"><i class="fas fa-bell"></i> নোটিশ ও আপডেট</h3>
+            
+            <div class="notification-list">
+                <div class="stat-card">
+                    <h3><i class="fas fa-info-circle"></i> নতুন আপডেট</h3>
+                    <p>স্বয়ংক্রিয় বিজ্ঞাপন সিস্টেম চালু হয়েছে। এখন থেকে স্বয়ংক্রিয়ভাবে বিজ্ঞাপন দেখে টাকা আয় করতে পারবেন।</p>
+                    <small>২ দিন আগে</small>
+                </div>
+                
+                <div class="stat-card">
+                    <h3><i class="fas fa-gift"></i> বিশেষ অফার</h3>
+                    <p>এই সপ্তাহে অতিরিক্ত ১০% বোনাস পেতে আপনার বন্ধুদের আমন্ত্রণ করুন।</p>
+                    <small>৫ দিন আগে</small>
+                </div>
+                
+                <div class="stat-card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> গুরুত্বপূর্ণ নোটিশ</h3>
+                    <p>উত্তোলনের জন্য ন্যূনতম ২০ টাকা প্রয়োজন। দয়া করে উত্তোলন করার আগে নিশ্চিত হয়ে নিন।</p>
+                    <small>১ সপ্তাহ আগে</small>
+                </div>
+                
+                <div class="stat-card">
+                    <h3><i class="fas fa-bolt"></i> নতুন সুযোগ</h3>
+                    <p>Income Now - মাত্র ৫০ টাকায় শুরু করুন আপনার ইনকাম যাত্রা! আরও বেশি উপার্জনের সুযোগ।</p>
+                    <small>আজ</small>
                 </div>
             </div>
         </div>
         
-        <!-- Video 2 -->
-        <div class="video-container" onclick="openVideo('নতুন বাংলা গান ২০২৩ | জনপ্রিয় গান', 'মিউজিক বাংলা', '৫.২ লাখ ভিউ • ১ সপ্তাহ আগে', 'video2')">
-            <div class="video-thumbnail">
-                <img src="https://via.placeholder.com/500x280/0000ff/ffffff?text=Music+Video" alt="Video Thumbnail">
-                <div class="video-duration">4:15</div>
-            </div>
-            <div class="video-info">
-                <div class="video-title">নতুন বাংলা গান ২০২৩ | জনপ্রিয় গান</div>
-                <div class="video-meta">
-                    <span>মিউজিক বাংলা</span>
-                    <span>৫.২ লাখ ভিউ • ১ সপ্তাহ আগে</span>
-                </div>
-                <div class="video-actions">
-                    <div class="action-btn" onclick="event.stopPropagation(); toggleLike(this)">
-                        <i class="far fa-thumbs-up"></i>
-                        <span>লাইক</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="far fa-thumbs-down"></i>
-                        <span>ডিসলাইক</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="far fa-comment"></i>
-                        <span>কমেন্ট</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="fas fa-share"></i>
-                        <span>শেয়ার</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Video 3 -->
-        <div class="video-container" onclick="openVideo('বিরিয়ানি রান্নার সহজ পদ্ধতি | রেস্টুরেন্ট স্টাইল', 'রান্নাঘর', '৮.৭ লাখ ভিউ • ১ মাস আগে', 'video3')">
-            <div class="video-thumbnail">
-                <img src="https://via.placeholder.com/500x280/00aa00/ffffff?text=Cooking+Show" alt="Video Thumbnail">
-                <div class="video-duration">15:40</div>
-            </div>
-            <div class="video-info">
-                <div class="video-title">বিরিয়ানি রান্নার সহজ পদ্ধতি | রেস্টুরেন্ট স্টাইল</div>
-                <div class="video-meta">
-                    <span>রান্নাঘর</span>
-                    <span>৮.৭ লাখ ভিউ • ১ মাস আগে</span>
-                </div>
-                <div class="video-actions">
-                    <div class="action-btn" onclick="event.stopPropagation(); toggleLike(this)">
-                        <i class="far fa-thumbs-up"></i>
-                        <span>লাইক</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="far fa-thumbs-down"></i>
-                        <span>ডিসলাইক</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="far fa-comment"></i>
-                        <span>কমেন্ট</span>
-                    </div>
-                    <div class="action-btn" onclick="event.stopPropagation()">
-                        <i class="fas fa-share"></i>
-                        <span>শেয়ার</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-    
-    <!-- Video Player Screen -->
-    <div id="video-player-screen" class="screen">
-        <div class="video-player-screen">
-            <div class="video-player-header">
-                <div class="back-btn" onclick="showScreen('home-screen')">
-                    <i class="fas fa-arrow-left" style="color: white; font-size: 20px;"></i>
-                </div>
-                <div>ভিডিও</div>
-                <div></div>
-            </div>
-            <div class="video-player">
-                <video id="video-player" controls>
-                    <source src="" type="video/mp4">
-                    আপনার ব্রাউজার ভিডিও সমর্থন করে না।
-                </video>
-            </div>
-            <div class="video-player-controls">
-                <div class="video-player-title" id="player-title">ভিডিও টাইটেল</div>
-                <div class="video-player-meta">
-                    <span id="player-channel">চ্যানেল নাম</span>
-                    <span id="player-views">ভিউ সংখ্যা</span>
-                </div>
-            </div>
+        <div class="footer">
+            <p>© ২০২৩ টাকা আয় করুন অ্যাপ। সকল অধিকার সংরক্ষিত।</p>
         </div>
     </div>
-    
-    <!-- Login Screen -->
-    <div id="login-screen" class="screen">
-        <div class="auth-screen">
-            <div class="auth-form">
-                <h2>লগ ইন</h2>
-                <div class="form-group">
-                    <label for="login-email">ইমেইল বা ইউজারনেম</label>
-                    <input type="text" id="login-email" placeholder="আপনার ইমেইল বা ইউজারনেম দিন">
-                </div>
-                <div class="form-group">
-                    <label for="login-password">পাসওয়ার্ড</label>
-                    <input type="password" id="login-password" placeholder="আপনার পাসওয়ার্ড দিন">
-                </div>
-                <button class="auth-btn" onclick="login()">লগ ইন</button>
-                <div class="auth-switch">
-                    একাউন্ট নেই? <a href="#" onclick="showScreen('signup-screen')">সাইন আপ করুন</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Signup Screen -->
-    <div id="signup-screen" class="screen">
-        <div class="auth-screen">
-            <div class="auth-form">
-                <h2>সাইন আপ</h2>
-                <div class="form-group">
-                    <label for="signup-name">পুরো নাম</label>
-                    <input type="text" id="signup-name" placeholder="আপনার পুরো নাম দিন">
-                </div>
-                <div class="form-group">
-                    <label for="signup-email">ইমেইল</label>
-                    <input type="email" id="signup-email" placeholder="আপনার ইমেইল দিন">
-                </div>
-                <div class="form-group">
-                    <label for="signup-username">ইউজারনেম</label>
-                    <input type="text" id="signup-username" placeholder="ইউজারনেম তৈরি করুন">
-                </div>
-                <div class="form-group">
-                    <label for="signup-password">পাসওয়ার্ড</label>
-                    <input type="password" id="signup-password" placeholder="পাসওয়ার্ড তৈরি করুন">
-                </div>
-                <div class="form-group">
-                    <label for="signup-bio">বায়ো</label>
-                    <textarea id="signup-bio" placeholder="আপনার সম্পর্কে সংক্ষেপে লিখুন"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="signup-location">অবস্থান</label>
-                    <input type="text" id="signup-location" placeholder="আপনার শহর/দেশ">
-                </div>
-                <div class="form-group">
-                    <label for="signup-birthdate">জন্ম তারিখ</label>
-                    <input type="date" id="signup-birthdate">
-                </div>
-                <button class="auth-btn" onclick="signup()">সাইন আপ</button>
-                <div class="auth-switch">
-                    ইতিমধ্যে একাউন্ট আছে? <a href="#" onclick="showScreen('login-screen')">লগ ইন করুন</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Profile Screen -->
-    <div id="profile-screen" class="screen">
-        <div class="profile-screen">
-            <div class="profile-header">
-                <div class="profile-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="profile-info">
-                    <h2 id="profile-name">রহিম আহমেদ</h2>
-                    <p id="profile-username">@rahim_ahmed</p>
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <div class="stat-value" id="profile-videos">১৫৬</div>
-                            <div class="stat-label">ভিডিও</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value" id="profile-subscribers">২৫.৪ক</div>
-                            <div class="stat-label">সাবস্ক্রাইবার</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value" id="profile-likes">৩.২ক</div>
-                            <div class="stat-label">লাইক</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="profile-actions">
-                <div class="profile-btn primary" onclick="showScreen('upload-screen')">
-                    ভিডিও আপলোড
-                </div>
-                <div class="profile-btn" onclick="editProfile()">
-                    এডিট প্রোফাইল
-                </div>
-            </div>
-            
-            <div class="profile-details">
-                <h3>ব্যক্তিগত তথ্য</h3>
-                <div class="profile-detail-item">
-                    <span class="detail-label">ইমেইল:</span>
-                    <span id="profile-email">rahim@example.com</span>
-                </div>
-                <div class="profile-detail-item">
-                    <span class="detail-label">বায়ো:</span>
-                    <span id="profile-bio">আমি একজন ভিডিও ক্রিয়েটর। ভ্রমণ এবং রান্না নিয়ে ভিডিও তৈরি করতে পছন্দ করি।</span>
-                </div>
-                <div class="profile-detail-item">
-                    <span class="detail-label">অবস্থান:</span>
-                    <span id="profile-location">ঢাকা, বাংলাদেশ</span>
-                </div>
-                <div class="profile-detail-item">
-                    <span class="detail-label">জন্ম তারিখ:</span>
-                    <span id="profile-birthdate">১৫ মার্চ, ১৯৯০</span>
-                </div>
-                <div class="profile-detail-item">
-                    <span class="detail-label">একাউন্ট তৈরি:</span>
-                    <span id="profile-joined">১৫ জানুয়ারি, ২০২২</span>
-                </div>
-            </div>
-            
-            <h3 style="margin-top: 20px;">আমার ভিডিওসমূহ</h3>
-            <div class="video-container" onclick="openVideo('আমার প্রথম ভিডিও | ভ্রমণ অভিজ্ঞতা', 'রহিম আহমেদ', '১.২ লাখ ভিউ • ২ মাস আগে', 'video4')">
-                <div class="video-thumbnail">
-                    <img src="https://via.placeholder.com/500x280/ff6600/ffffff?text=My+Video" alt="Video Thumbnail">
-                    <div class="video-duration">8:45</div>
-                </div>
-                <div class="video-info">
-                    <div class="video-title">আমার প্রথম ভিডিও | ভ্রমণ অভিজ্ঞতা</div>
-                    <div class="video-meta">
-                        <span>রহিম আহমেদ</span>
-                        <span>১.২ লাখ ভিউ • ২ মাস আগে</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Messenger Screen -->
-    <div id="messenger-screen" class="screen">
-        <div class="messenger-screen">
-            <button class="new-message-btn" onclick="showScreen('new-message-screen')">
-                <i class="fas fa-edit"></i> নতুন মেসেজ
-            </button>
-            <h2>মেসেজেস</h2>
-            <div class="chat-list" id="chat-list">
-                <!-- Chat items will be dynamically added here -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- New Message Screen -->
-    <div id="new-message-screen" class="screen">
-        <div class="new-message-screen">
-            <div class="chat-header">
-                <div class="back-btn" onclick="showScreen('messenger-screen')">
-                    <i class="fas fa-arrow-left" style="color: white; font-size: 20px;"></i>
-                </div>
-                <div class="chat-header-info">
-                    <div class="chat-header-name">নতুন মেসেজ</div>
-                    <div class="chat-header-status">একজন ইউজার নির্বাচন করুন</div>
-                </div>
-                <div></div>
-            </div>
-            
-            <div class="search-user-box">
-                <input type="text" class="search-user-input" id="search-user-input" placeholder="ইউজারনেম বা নাম দিয়ে সার্চ করুন...">
-                <button class="search-user-btn" onclick="searchUsersForMessage()">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-            
-            <div class="user-results" id="user-results">
-                <!-- User results will be dynamically added here -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- Individual Chat Screen -->
-    <div id="chat-screen" class="screen">
-        <div class="chat-screen">
-            <div class="chat-header">
-                <div class="back-btn" onclick="showScreen('messenger-screen')">
-                    <i class="fas fa-arrow-left" style="color: white; font-size: 20px;"></i>
-                </div>
-                <div class="chat-header-info">
-                    <div class="chat-header-name" id="chat-with-name">করিম উদ্দিন</div>
-                    <div class="chat-header-status" id="chat-status">অনলাইন</div>
-                </div>
-                <div class="chat-call-options">
-                    <i class="fas fa-phone" onclick="startAudioCall()"></i>
-                    <i class="fas fa-video" onclick="startVideoCall()"></i>
-                </div>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages">
-                <!-- Messages will be dynamically added here -->
-            </div>
-            
-            <div class="chat-input-area">
-                <input type="text" class="chat-input" id="message-input" placeholder="এখানে মেসেজ লিখুন..." onfocus="showKeyboard()">
-                <button class="send-btn" onclick="sendMessage()">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Call Screen -->
-    <div id="call-screen" class="call-screen">
-        <div class="call-video-container">
-            <video id="remote-video" class="remote-video" autoplay></video>
-            <video id="local-video" class="local-video" autoplay muted></video>
-            <div class="call-info">
-                <h3 id="caller-name">করিম উদ্দিন</h3>
-                <p id="call-status">কলিং...</p>
-            </div>
-        </div>
-        <div class="call-controls">
-            <button class="call-btn end-call" onclick="endCall()">
-                <i class="fas fa-phone-slash"></i>
-            </button>
-        </div>
-    </div>
-    
-    <!-- Incoming Call Notification -->
-    <div id="incoming-call" class="incoming-call">
-        <div class="caller-info">
-            <h3 id="incoming-caller-name">করিম উদ্দিন</h3>
-            <p>ইনকামিং কল...</p>
-        </div>
-        <div class="call-actions">
-            <button class="call-action-btn accept-call-btn" onclick="acceptCall()">
-                <i class="fas fa-phone"></i> একসেপ্ট
-            </button>
-            <button class="call-action-btn reject-call-btn" onclick="rejectCall()">
-                <i class="fas fa-phone-slash"></i> রিজেক্ট
-            </button>
-        </div>
-    </div>
-    
-    <!-- Virtual Keyboard -->
-    <div class="virtual-keyboard" id="virtual-keyboard">
-        <div class="keyboard-row">
-            <div class="keyboard-key" onclick="typeKey('1')">1</div>
-            <div class="keyboard-key" onclick="typeKey('2')">2</div>
-            <div class="keyboard-key" onclick="typeKey('3')">3</div>
-            <div class="keyboard-key" onclick="typeKey('4')">4</div>
-            <div class="keyboard-key" onclick="typeKey('5')">5</div>
-            <div class="keyboard-key" onclick="typeKey('6')">6</div>
-            <div class="keyboard-key" onclick="typeKey('7')">7</div>
-            <div class="keyboard-key" onclick="typeKey('8')">8</div>
-            <div class="keyboard-key" onclick="typeKey('9')">9</div>
-            <div class="keyboard-key" onclick="typeKey('0')">0</div>
-        </div>
-        <div class="keyboard-row">
-            <div class="keyboard-key" onclick="typeKey('q')">q</div>
-            <div class="keyboard-key" onclick="typeKey('w')">w</div>
-            <div class="keyboard-key" onclick="typeKey('e')">e</div>
-            <div class="keyboard-key" onclick="typeKey('r')">r</div>
-            <div class="keyboard-key" onclick="typeKey('t')">t</div>
-            <div class="keyboard-key" onclick="typeKey('y')">y</div>
-            <div class="keyboard-key" onclick="typeKey('u')">u</div>
-            <div class="keyboard-key" onclick="typeKey('i')">i</div>
-            <div class="keyboard-key" onclick="typeKey('o')">o</div>
-            <div class="keyboard-key" onclick="typeKey('p')">p</div>
-        </div>
-        <div class="keyboard-row">
-            <div class="keyboard-key" onclick="typeKey('a')">a</div>
-            <div class="keyboard-key" onclick="typeKey('s')">s</div>
-            <div class="keyboard-key" onclick="typeKey('d')">d</div>
-            <div class="keyboard-key" onclick="typeKey('f')">f</div>
-            <div class="keyboard-key" onclick="typeKey('g')">g</div>
-            <div class="keyboard-key" onclick="typeKey('h')">h</div>
-            <div class="keyboard-key" onclick="typeKey('j')">j</div>
-            <div class="keyboard-key" onclick="typeKey('k')">k</div>
-            <div class="keyboard-key" onclick="typeKey('l')">l</div>
-            <div class="keyboard-key backspace" onclick="backspace()"><i class="fas fa-backspace"></i></div>
-        </div>
-        <div class="keyboard-row">
-            <div class="keyboard-key" onclick="typeKey('z')">z</div>
-            <div class="keyboard-key" onclick="typeKey('x')">x</div>
-            <div class="keyboard-key" onclick="typeKey('c')">c</div>
-            <div class="keyboard-key" onclick="typeKey('v')">v</div>
-            <div class="keyboard-key" onclick="typeKey('b')">b</div>
-            <div class="keyboard-key" onclick="typeKey('n')">n</div>
-            <div class="keyboard-key" onclick="typeKey('m')">m</div>
-            <div class="keyboard-key" onclick="typeKey(',')">,</div>
-            <div class="keyboard-key" onclick="typeKey('.')">.</div>
-            <div class="keyboard-key" onclick="typeKey('?')">?</div>
-        </div>
-        <div class="keyboard-row">
-            <div class="keyboard-key" onclick="typeKey('@')">@</div>
-            <div class="keyboard-key" onclick="typeKey('#')">#</div>
-            <div class="keyboard-key space" onclick="typeKey(' ')">SPACE</div>
-            <div class="keyboard-key enter" onclick="sendMessage()">SEND</div>
-        </div>
-    </div>
-    
-    <!-- Search Screen -->
-    <div id="search-screen" class="screen">
-        <div class="search-screen">
-            <div class="search-box">
-                <input type="text" class="search-input" id="search-query" placeholder="ইউজারনেম বা নাম দিয়ে সার্চ করুন...">
-                <button class="search-btn" onclick="searchUsers()">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-            
-            <div class="search-results" id="search-results">
-                <div class="search-result-item">
-                    <div class="search-result-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="search-result-info">
-                        <div class="search-result-name">করিম উদ্দিন</div>
-                        <div class="search-result-username">@karim_uddin</div>
-                        <div class="search-result-bio">ভিডিও ক্রিয়েটর | ট্রাভেল ভ্লগার</div>
-                    </div>
-                    <button class="add-friend-btn" onclick="addFriend(this, 'করিম উদ্দিন')">এড ফ্রেন্ড</button>
-                </div>
-                
-                <div class="search-result-item">
-                    <div class="search-result-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="search-result-info">
-                        <div class="search-result-name">সুমাইয়া আক্তার</div>
-                        <div class="search-result-username">@sumaiya_akter</div>
-                        <div class="search-result-bio">মিউজিকিয়ান | গায়িকা</div>
-                    </div>
-                    <button class="add-friend-btn" onclick="addFriend(this, 'সুমাইয়া আক্তার')">এড ফ্রেন্ড</button>
-                </div>
-                
-                <div class="search-result-item">
-                    <div class="search-result-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="search-result-info">
-                        <div class="search-result-name">রাজীব হাসান</div>
-                        <div class="search-result-username">@rajib_hassan</div>
-                        <div class="search-result-bio">কমেডিয়ান | কন্টেন্ট ক্রিয়েটর</div>
-                    </div>
-                    <button class="add-friend-btn" onclick="addFriend(this, 'রাজীব হাসান')">এড ফ্রেন্ড</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Friends Screen -->
-    <div id="friends-screen" class="screen">
-        <div class="friends-screen">
-            <h2>বন্ধু</h2>
-            <div class="friends-tabs">
-                <div class="friend-tab active" onclick="switchFriendTab('all-friends')">সব বন্ধু</div>
-                <div class="friend-tab" onclick="switchFriendTab('friend-requests')">ফ্রেন্ড রিকোয়েস্ট</div>
-            </div>
-            
-            <div class="friends-list" id="all-friends">
-                <!-- Friends will be dynamically added here -->
-            </div>
-            
-            <div class="friends-list hidden" id="friend-requests">
-                <div class="friend-item">
-                    <div class="friend-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="friend-info">
-                        <div class="friend-name">আনিকা ইসলাম</div>
-                        <div class="friend-username">@anika_islam</div>
-                    </div>
-                    <div class="friend-actions">
-                        <button class="add-friend-btn" style="background-color: #25D366;" onclick="acceptFriendRequest(this, 'আনিকা ইসলাম')">একসেপ্ট</button>
-                        <button class="add-friend-btn" style="background-color: #ff0000;" onclick="declineFriendRequest(this)">ডিক্লাইন</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Upload Screen -->
-    <div id="upload-screen" class="screen">
-        <div class="upload-screen">
-            <h2>ভিডিও আপলোড</h2>
-            
-            <div class="upload-tabs">
-                <div class="upload-tab active" onclick="switchUploadTab('file-upload')">ফাইল আপলোড</div>
-                <div class="upload-tab" onclick="switchUploadTab('url-upload')">URL লিংক</div>
-            </div>
-            
-            <!-- ফাইল আপলোড সেকশন -->
-            <div id="file-upload" class="upload-section active">
-                <div class="upload-area">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p>ভিডিও ফাইল এখানে ক্লিক করে বা ড্র্যাগ করে আপলোড করুন</p>
-                </div>
-                
-                <div class="upload-form">
-                    <div class="form-group">
-                        <label for="video-title">ভিডিও টাইটেল</label>
-                        <input type="text" id="video-title" placeholder="ভিডিওর শিরোনাম দিন">
-                    </div>
-                    <div class="form-group">
-                        <label for="video-desc">ভিডিও বিবরণ</label>
-                        <textarea id="video-desc" placeholder="ভিডিওর বিবরণ দিন" style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="video-thumbnail">থাম্বনেইল নির্বাচন করুন</label>
-                        <input type="file" id="video-thumbnail" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <button class="upload-btn">আপলোড করুন</button>
-                </div>
-            </div>
-            
-            <!-- URL লিংক আপলোড সেকশন -->
-            <div id="url-upload" class="upload-section">
-                <div class="upload-form">
-                    <div class="form-group">
-                        <label for="video-url">ভিডিও URL লিংক</label>
-                        <input type="text" class="video-url-input" id="video-url" placeholder="ভিডিওর URL লিংক দিন (যেমন: YouTube, Vimeo, etc.)">
-                    </div>
-                    <div class="form-group">
-                        <label for="video-title-url">ভিডিও টাইটেল</label>
-                        <input type="text" id="video-title-url" placeholder="ভিডিওর শিরোনাম দিন">
-                    </div>
-                    <div class="form-group">
-                        <label for="video-desc-url">ভিডিও বিবরণ</label>
-                        <textarea id="video-desc-url" placeholder="ভিডিওর বিবরণ দিন" style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
-                    </div>
-                    <button class="url-upload-btn" onclick="uploadVideoFromUrl()">URL থেকে আপলোড করুন</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav" id="app-bottom-nav" class="hidden">
-        <div class="nav-item active" onclick="showScreen('home-screen')">
+
+    <!-- নেভিগেশন বার -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="showPage('home-page', this)">
             <i class="fas fa-home"></i>
             <span>হোম</span>
-        </div>
-        <div class="nav-item" onclick="showScreen('messenger-screen')">
-            <i class="fas fa-comment-dots"></i>
-            <span>মেসেনজার</span>
-        </div>
-        <div class="nav-item" onclick="showUploadScreen()">
-            <i class="fas fa-plus-square"></i>
-            <span>আপলোড</span>
-        </div>
-        <div class="nav-item" onclick="showScreen('profile-screen')">
-            <i class="fas fa-user"></i>
-            <span>প্রোফাইল</span>
-        </div>
+        </a>
+        <a href="#" class="nav-item" onclick="showPage('earn-page', this)">
+            <i class="fas fa-coins"></i>
+            <span>আর্ন</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showPage('withdraw-page', this)">
+            <i class="fas fa-wallet"></i>
+            <span>উত্তোলন</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showPage('notice-page', this)">
+            <i class="fas fa-bell"></i>
+            <span>নোটিশ</span>
+        </a>
     </div>
-    
+
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text"></span>
+    </div>
+
     <script>
-        // Firebase Configuration - আপনার Firebase project configuration এখানে বসান
-        const firebaseConfig = {
-  apiKey: "AIzaSyDoSoN_l6W6EzVsP9gEMKLz96_l13cPvPU",
-  authDomain: "fir-8089e.firebaseapp.com",
-  databaseURL: "https://fir-8089e-default-rtdb.firebaseio.com",
-  projectId: "fir-8089e",
-  storageBucket: "fir-8089e.firebasestorage.app",
-  messagingSenderId: "582969221929",
-  appId: "1:582969221929:web:790d39fc900ed270bd8d38",
-  measurementId: "G-WFP11LE0L7"
-};
+        // Constants
+        const POINTS_PER_AD = 2.00; // প্রতি বিজ্ঞাপনে ২ টাকা
+        const MIN_WITHDRAW_TAKA = 200; // ন্যূনতম উত্তোলন ২০ টাকা
+        const REFERRAL_BONUS = 5.00; // রেফারেল বোনাস ৫ টাকা
+        
+        // Telegram Bot Configuration - এখানে আপনার বটের তথ্য দিন
+        const BOT_TOKEN = "8514643369:AAE2AFyT6r5RKgK7y7oOQnONyQIqa3Nez08"; // আপনার বট টোকেন
+        const ADMIN_CHAT_ID = "8311761041"; // আপনার টেলিগ্রাম চ্যাট আইডি
+        
+        // Variables
+        let watchedAdsCount = 0;
+        let earnedPoints = 0.00;
+        let referralCount = 0;
+        let referralEarnings = 0.00;
+        let userId = generateUserId();
+        let autoAdInterval;
+        let isAutoMode = false;
+        let isAdLoading = false;
 
+        // Initialize the app
+        function initApp() {
+            // Check for referral in URL
+            checkReferral();
+            
+            // Set user info
+            document.getElementById('user-id').textContent = userId;
+            document.getElementById('user-avatar').textContent = userId.charAt(0).toUpperCase();
+            
+            // Load user data
+            loadUserData();
+            updateUI();
+            checkAdReady();
+            
+            // Generate referral link
+            generateReferralLink();
+        }
 
-        // Firebase Initialize
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-        const rdb = firebase.database();
+        // পেজ দেখানোর ফাংশন
+        function showPage(pageId, element) {
+            // সব পেজ লুকান
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // নির্বাচিত পেজ দেখান
+            document.getElementById(pageId).classList.add('active');
+            
+            // সব নেভিগেশন আইটেম থেকে active ক্লাস সরান
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // নির্বাচিত নেভিগেশন আইটেমে active ক্লাস যোগ করুন
+            element.classList.add('active');
+            
+            // উত্তোলন পেজে গেলে মোট আয় আপডেট করুন
+            if (pageId === 'withdraw-page') {
+                document.getElementById('total-earned-withdraw').textContent = (earnedPoints + referralEarnings).toFixed(2);
+            }
+            
+            // আর্ন পেজে গেলে ডেটা আপডেট করুন
+            if (pageId === 'earn-page') {
+                document.getElementById('referral-count-earn').textContent = referralCount;
+                document.getElementById('referral-earnings-earn').textContent = referralEarnings.toFixed(2);
+                document.getElementById('referral-link-earn').value = document.getElementById('referral-link').value;
+            }
+        }
 
-        // Global variables
-        let currentUser = null;
-        let currentChatUser = null;
-        let currentChatId = null;
-        let localStream = null;
-        let remoteStream = null;
-        let peerConnection = null;
-        let currentCallId = null;
-        let isCaller = false;
+        // Generate a random user ID if not exists
+        function generateUserId() {
+            if (localStorage.getItem('userId')) {
+                return localStorage.getItem('userId');
+            }
+            
+            const newId = Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem('userId', newId.toString());
+            return newId.toString();
+        }
 
-        // Firebase Auth State Listener
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                showAppScreens();
-                setupPresence();
-                loadUserProfile(user.uid);
+        // Check if there's a referral in URL
+        function checkReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const referrerId = urlParams.get('ref');
+            
+            if (referrerId && referrerId !== userId) {
+                // Check if this is first visit and not already referred
+                if (!localStorage.getItem('referredBy')) {
+                    localStorage.setItem('referredBy', referrerId);
+                    showNotification('আপনি একটি রেফারেল লিঙ্ক ব্যবহার করে যোগদান করেছেন! রেফারার ৫ টাকা বোনাস পাবেন।', 'success');
+                    
+                    // In a real app, you would send this to your backend
+                    setTimeout(() => {
+                        console.log(`User ${referrerId} should get referral bonus`);
+                    }, 1000);
+                }
+            }
+        }
+
+        // Generate referral link
+        function generateReferralLink() {
+            const currentUrl = window.location.href.split('?')[0];
+            const referralLink = `${currentUrl}?ref=${userId}`;
+            document.getElementById('referral-link').value = referralLink;
+        }
+
+        // Copy referral link to clipboard
+        function copyReferralLink() {
+            const referralLink = document.getElementById('referral-link');
+            referralLink.select();
+            document.execCommand('copy');
+            
+            // Show copied message
+            const copyBtn = document.getElementById('copy-referral');
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = 'কপি হয়েছে!';
+            copyBtn.style.background = 'var(--success-color)';
+            
+            showNotification('রেফারেল লিঙ্ক কপি করা হয়েছে!', 'success');
+            
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.style.background = 'linear-gradient(to right, var(--primary-color), var(--secondary-color))';
+            }, 2000);
+        }
+
+        // Check if Monetag ad is ready
+        function checkAdReady() {
+            if (typeof window.show_9472189 !== 'function') {
+                document.getElementById('ad-status').innerHTML = '<i class="fas fa-spinner fa-spin"></i> বিজ্ঞাপন সিস্টেম লোড হচ্ছে...';
+                setTimeout(checkAdReady, 1000);
             } else {
-                currentUser = null;
-                showScreen('welcome-screen');
+                document.getElementById('ad-status').innerHTML = '<i class="fas fa-check-circle"></i> বিজ্ঞাপন দেখতে প্রস্তুত';
             }
-        });
-
-        // Show app screens after login
-        function showAppScreens() {
-            document.getElementById('app-header').classList.remove('hidden');
-            document.getElementById('app-nav').classList.remove('hidden');
-            document.getElementById('app-bottom-nav').classList.remove('hidden');
-            showScreen('home-screen');
         }
 
-        // Setup user presence
-        function setupPresence() {
-            const uid = currentUser.uid;
-            const userStatusRef = rdb.ref('/presence/' + uid);
+        // Load user data from localStorage
+        function loadUserData() {
+            if (localStorage.getItem('watchedAdsCount')) {
+                watchedAdsCount = parseInt(localStorage.getItem('watchedAdsCount'));
+            }
             
-            // Set user online
-            userStatusRef.set({
-                online: true,
-                lastSeen: firebase.database.ServerValue.TIMESTAMP
-            });
+            if (localStorage.getItem('earnedPoints')) {
+                earnedPoints = parseFloat(localStorage.getItem('earnedPoints'));
+            }
             
-            // Handle disconnect
-            userStatusRef.onDisconnect().set({
-                online: false,
-                lastSeen: firebase.database.ServerValue.TIMESTAMP
-            });
+            if (localStorage.getItem('referralCount')) {
+                referralCount = parseInt(localStorage.getItem('referralCount'));
+            }
+            
+            if (localStorage.getItem('referralEarnings')) {
+                referralEarnings = parseFloat(localStorage.getItem('referralEarnings'));
+            }
         }
 
-        // Login function with Firebase
-        async function login() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+        // Save user data to localStorage
+        function saveUserData() {
+            localStorage.setItem('watchedAdsCount', watchedAdsCount);
+            localStorage.setItem('earnedPoints', earnedPoints.toFixed(2));
+            localStorage.setItem('referralCount', referralCount);
+            localStorage.setItem('referralEarnings', referralEarnings.toFixed(2));
+        }
+
+        // Update all UI elements
+        function updateUI() {
+            document.getElementById('watched-ads').textContent = watchedAdsCount;
+            document.getElementById('earned-money').textContent = (earnedPoints + referralEarnings).toFixed(2);
+            document.getElementById('referral-count').textContent = referralCount;
+            document.getElementById('referral-earnings').textContent = referralEarnings.toFixed(2);
+            updateProgress();
+        }
+
+        // Update progress bar and text
+        function updateProgress() {
+            const progressPercent = (earnedPoints / MIN_WITHDRAW_TAKA) * 100;
             
-            if (!email || !password) {
-                alert('দয়া করে ইমেইল এবং পাসওয়ার্ড প্রদান করুন।');
+            document.getElementById('progress-fill').style.width = `${Math.min(progressPercent, 100)}%`;
+            document.getElementById('ads-progress').textContent = `${earnedPoints.toFixed(2)}/${MIN_WITHDRAW_TAKA} টাকা`;
+        }
+
+        // Function to watch an ad and earn points
+        function watchAd() {
+            if (isAdLoading) return;
+            
+            if (typeof window.show_9472189 !== 'function') {
+                document.getElementById('ad-status').innerHTML = '<i class="fas fa-exclamation-circle"></i> বিজ্ঞাপন সিস্টেম প্রস্তুত নয়। দয়া করে অপেক্ষা করুন...';
+                return;
+            }
+
+            isAdLoading = true;
+            document.getElementById('watch-ad-btn').disabled = true;
+            document.getElementById('watch-ad-btn-earn').disabled = true;
+            document.getElementById('ad-status').innerHTML = '<i class="fas fa-spinner fa-spin"></i> বিজ্ঞাপন লোড হচ্ছে...';
+            
+            try {
+                // Show the ad
+                window.show_9472189().then(() => {
+                    // Ad watched successfully
+                    watchedAdsCount++;
+                    earnedPoints += POINTS_PER_AD;
+                    
+                    saveUserData();
+                    updateUI();
+                    document.getElementById('ad-status').innerHTML = '<i class="fas fa-check-circle"></i> বিজ্ঞাপন সফলভাবে দেখা হয়েছে!';
+                    
+                    // Show coin animation
+                    createCoinAnimation();
+                    
+                    // Show success notification
+                    showNotification(`২ টাকা যোগ হয়েছে! আপনার ব্যালেন্স: ${(earnedPoints + referralEarnings).toFixed(2)} টাকা`, 'success');
+                    
+                    // Check if earned enough for withdrawal
+                    if (earnedPoints + referralEarnings >= MIN_WITHDRAW_TAKA) {
+                        showNotification(`অভিনন্দন! আপনি উত্তোলনের জন্য ${MIN_WITHDRAW_TAKA} টাকা সংগ্রহ করেছেন।`, 'info');
+                    }
+                    
+                    // If in auto mode, continue after delay
+                    if (isAutoMode) {
+                        setTimeout(() => {
+                            isAdLoading = false;
+                            document.getElementById('watch-ad-btn').disabled = false;
+                            document.getElementById('watch-ad-btn-earn').disabled = false;
+                            watchAd();
+                        }, 10000); // 10 seconds delay between auto ads
+                    } else {
+                        isAdLoading = false;
+                        document.getElementById('watch-ad-btn').disabled = false;
+                        document.getElementById('watch-ad-btn-earn').disabled = false;
+                    }
+                }).catch(error => {
+                    console.error('Error showing ad:', error);
+                    document.getElementById('ad-status').innerHTML = '<i class="fas fa-times-circle"></i> বিজ্ঞাপন দেখানো যায়নি। আবার চেষ্টা করুন।';
+                    isAdLoading = false;
+                    document.getElementById('watch-ad-btn').disabled = false;
+                    document.getElementById('watch-ad-btn-earn').disabled = false;
+                    
+                    if (isAutoMode) {
+                        setTimeout(watchAd, 10000); // Retry after 10 seconds
+                    }
+                });
+            } catch (error) {
+                console.error('Error in ad system:', error);
+                document.getElementById('ad-status').innerHTML = '<i class="fas fa-exclamation-triangle"></i> বিজ্ঞাপন সিস্টেমে ত্রুটি। পৃষ্ঠাটি রিফ্রেশ করুন।';
+                isAdLoading = false;
+                document.getElementById('watch-ad-btn').disabled = false;
+                document.getElementById('watch-ad-btn-earn').disabled = false;
+            }
+        }
+
+        // Create coin animation
+        function createCoinAnimation() {
+            const button = document.getElementById('watch-ad-btn');
+            const rect = button.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            const coin = document.createElement('div');
+            coin.className = 'coin-animation';
+            coin.innerHTML = '<i class="fas fa-coins"></i>';
+            coin.style.left = `${x}px`;
+            coin.style.top = `${y}px`;
+            document.body.appendChild(coin);
+            
+            setTimeout(() => {
+                document.body.removeChild(coin);
+            }, 1000);
+        }
+
+        // Start auto ads mode
+        function startAutoAds() {
+            isAutoMode = true;
+            document.getElementById('auto-ad-btn').disabled = true;
+            document.getElementById('auto-ad-btn-earn').disabled = true;
+            document.getElementById('stop-auto-btn').disabled = false;
+            document.getElementById('stop-auto-btn-earn').disabled = false;
+            document.getElementById('watch-ad-btn').disabled = true;
+            document.getElementById('watch-ad-btn-earn').disabled = true;
+            document.getElementById('ad-status').innerHTML = '<i class="fas fa-robot"></i> স্বয়ংক্রিয় বিজ্ঞাপন মোড চালু';
+            
+            watchAd(); // Start the first ad
+        }
+
+        // Stop auto ads mode
+        function stopAutoAds() {
+            isAutoMode = false;
+            document.getElementById('auto-ad-btn').disabled = false;
+            document.getElementById('auto-ad-btn-earn').disabled = false;
+            document.getElementById('stop-auto-btn').disabled = true;
+            document.getElementById('stop-auto-btn-earn').disabled = true;
+            document.getElementById('watch-ad-btn').disabled = false;
+            document.getElementById('watch-ad-btn-earn').disabled = false;
+            document.getElementById('ad-status').innerHTML = '<i class="fas fa-check-circle"></i> স্বয়ংক্রিয় বিজ্ঞাপন মোড বন্ধ';
+        }
+
+        // Show withdraw form
+        function showWithdrawForm() {
+            // উত্তোলন পেজ দেখান
+            showPage('withdraw-page', document.querySelector('.nav-item:nth-child(3)'));
+            
+            const totalEarnings = earnedPoints + referralEarnings;
+            
+            if (totalEarnings < MIN_WITHDRAW_TAKA) {
+                document.getElementById('withdraw-status').textContent = 
+                    `ন্যূনতম উত্তোলন পরিমাণ ${MIN_WITHDRAW_TAKA} টাকা। আপনার আছে ${totalEarnings.toFixed(2)} টাকা।`;
+                document.getElementById('withdraw-status').className = 'error-message';
+                document.getElementById('withdraw-section').style.display = 'block';
                 return;
             }
             
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                alert('সফলভাবে লগ ইন করা হয়েছে!');
-            } catch (error) {
-                alert('লগ ইন ব্যর্থ: ' + error.message);
-            }
+            document.getElementById('withdraw-amount').value = '';
+            document.getElementById('withdraw-amount').placeholder = `সর্বোচ্চ: ${totalEarnings.toFixed(2)} টাকা`;
+            document.getElementById('withdraw-amount').max = totalEarnings.toFixed(2);
+            document.getElementById('withdraw-phone').value = '';
+            document.getElementById('payment-method').selectedIndex = 0;
+            document.getElementById('withdraw-status').textContent = '';
+            document.getElementById('withdraw-section').style.display = 'block';
         }
 
-        // Signup function with Firebase
-        async function signup() {
-            const name = document.getElementById('signup-name').value;
-            const email = document.getElementById('signup-email').value;
-            const username = document.getElementById('signup-username').value;
-            const password = document.getElementById('signup-password').value;
-            const bio = document.getElementById('signup-bio').value;
-            const location = document.getElementById('signup-location').value;
-            const birthdate = document.getElementById('signup-birthdate').value;
+        // Handle withdrawal request
+        function withdrawPoints() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const paymentMethod = document.getElementById('payment-method').value;
+            const phoneNumber = document.getElementById('withdraw-phone').value;
+            const totalEarnings = earnedPoints + referralEarnings;
+            const withdrawStatus = document.getElementById('withdraw-status');
             
-            if (!name || !email || !username || !password) {
-                alert('দয়া করে সমস্ত প্রয়োজনীয় তথ্য প্রদান করুন।');
+            // Validate inputs
+            if (!amount || isNaN(amount)) {
+                withdrawStatus.textContent = 'দয়া করে একটি বৈধ পরিমাণ লিখুন।';
+                withdrawStatus.className = 'error-message';
                 return;
             }
             
-            try {
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // Save user profile to Firestore
-                await db.collection('users').doc(user.uid).set({
-                    name: name,
-                    email: email,
-                    username: username,
-                    bio: bio || 'কোন বায়ো যোগ করা হয়নি',
-                    location: location || 'অজানা',
-                    birthdate: birthdate || 'অজানা',
-                    joined: new Date().toISOString(),
-                    videos: 0,
-                    subscribers: 0,
-                    likes: 0,
-                    profilePicture: ''
-                });
-                
-                alert('সফলভাবে একাউন্ট তৈরি করা হয়েছে!');
-            } catch (error) {
-                alert('সাইন আপ ব্যর্থ: ' + error.message);
-            }
-        }
-
-        // Load user profile from Firestore
-        async function loadUserProfile(uid) {
-            try {
-                const doc = await db.collection('users').doc(uid).get();
-                if (doc.exists) {
-                    const userData = doc.data();
-                    document.getElementById('profile-name').textContent = userData.name;
-                    document.getElementById('profile-username').textContent = '@' + userData.username;
-                    document.getElementById('profile-email').textContent = userData.email;
-                    document.getElementById('profile-bio').textContent = userData.bio;
-                    document.getElementById('profile-location').textContent = userData.location;
-                    document.getElementById('profile-birthdate').textContent = userData.birthdate;
-                    document.getElementById('profile-joined').textContent = new Date(userData.joined).toLocaleDateString('bn-BD');
-                    document.getElementById('profile-videos').textContent = userData.videos;
-                    document.getElementById('profile-subscribers').textContent = userData.subscribers;
-                    document.getElementById('profile-likes').textContent = userData.likes;
-                }
-            } catch (error) {
-                console.error('Error loading user profile:', error);
-            }
-        }
-
-        // Send message function
-        async function sendMessage() {
-            const messageInput = document.getElementById('message-input');
-            const messageText = messageInput.value.trim();
-            
-            if (!messageText || !currentChatId || !currentUser) return;
-            
-            try {
-                await db.collection('chats').doc(currentChatId).collection('messages').add({
-                    text: messageText,
-                    senderId: currentUser.uid,
-                    senderName: currentUser.displayName || 'User',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    type: 'text'
-                });
-                
-                messageInput.value = '';
-            } catch (error) {
-                console.error('Error sending message:', error);
-            }
-        }
-
-        // Load messages for a chat
-        function loadChatMessages(chatId) {
-            const chatMessages = document.getElementById('chat-messages');
-            chatMessages.innerHTML = '';
-            
-            db.collection('chats').doc(chatId).collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot((snapshot) => {
-                    chatMessages.innerHTML = '';
-                    snapshot.forEach((doc) => {
-                        const message = doc.data();
-                        const messageElement = createMessageElement(message);
-                        chatMessages.appendChild(messageElement);
-                    });
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                });
-        }
-
-        // Create message element with reply option
-        function createMessageElement(message) {
-            const messageElement = document.createElement('div');
-            const isSent = message.senderId === currentUser.uid;
-            
-            messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
-            messageElement.innerHTML = `
-                <div>${message.text}</div>
-                <div class="message-time">${new Date(message.timestamp?.toDate()).toLocaleTimeString('bn-BD')}</div>
-                <div class="message-actions">
-                    <button class="message-action-btn" onclick="replyToMessage('${message.text}')">
-                        <i class="fas fa-reply"></i> রিপ্লাই
-                    </button>
-                    ${isSent ? `
-                    <button class="message-action-btn" onclick="deleteMessage('${doc.id}')">
-                        <i class="fas fa-trash"></i> ডিলিট
-                    </button>
-                    ` : ''}
-                </div>
-            `;
-            
-            return messageElement;
-        }
-
-        // Reply to a message
-        function replyToMessage(messageText) {
-            const messageInput = document.getElementById('message-input');
-            messageInput.value = `Replying to: "${messageText}" - `;
-            messageInput.focus();
-        }
-
-        // Start audio call
-        async function startAudioCall() {
-            if (!currentChatUser) return;
-            
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-                setupCall(true);
-            } catch (error) {
-                alert('মাইক্রোফোন এক্সেস ব্যর্থ: ' + error.message);
-            }
-        }
-
-        // Start video call
-        async function startVideoCall() {
-            if (!currentChatUser) return;
-            
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('local-video').srcObject = localStream;
-                setupCall(false);
-            } catch (error) {
-                alert('ক্যামেরা/মাইক্রোফোন এক্সেস ব্যর্থ: ' + error.message);
-            }
-        }
-
-        // Setup call
-        function setupCall(isAudioOnly) {
-            isCaller = true;
-            currentCallId = generateCallId();
-            
-            // Show call screen
-            document.getElementById('call-screen').classList.add('active');
-            document.getElementById('call-status').textContent = 'কলিং...';
-            
-            // Save call to Firebase
-            rdb.ref('calls/' + currentCallId).set({
-                callerId: currentUser.uid,
-                receiverId: currentChatUser.uid,
-                callType: isAudioOnly ? 'audio' : 'video',
-                status: 'calling',
-                timestamp: Date.now()
-            });
-            
-            // Listen for call answer
-            rdb.ref('calls/' + currentCallId).on('value', (snapshot) => {
-                const callData = snapshot.val();
-                if (callData && callData.status === 'answered') {
-                    document.getElementById('call-status').textContent = 'কানেক্টেড';
-                    // Start WebRTC connection
-                    startWebRTC();
-                } else if (callData && callData.status === 'rejected') {
-                    endCall();
-                    alert('কল রিজেক্ট করা হয়েছে');
-                }
-            });
-        }
-
-        // Listen for incoming calls
-        rdb.ref('calls').orderByChild('receiverId').equalTo(currentUser?.uid).on('child_added', (snapshot) => {
-            const callData = snapshot.val();
-            if (callData.status === 'calling') {
-                showIncomingCall(callData);
-            }
-        });
-
-        // Show incoming call notification
-        function showIncomingCall(callData) {
-            currentCallId = snapshot.key;
-            document.getElementById('incoming-caller-name').textContent = callData.callerName || 'Unknown';
-            document.getElementById('incoming-call').classList.add('active');
-        }
-
-        // Accept incoming call
-        async function acceptCall() {
-            document.getElementById('incoming-call').classList.remove('active');
-            
-            try {
-                if (callData.callType === 'video') {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    document.getElementById('local-video').srcObject = localStream;
-                } else {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-                }
-                
-                document.getElementById('call-screen').classList.add('active');
-                document.getElementById('call-status').textContent = 'কানেক্টেড';
-                
-                // Update call status
-                rdb.ref('calls/' + currentCallId).update({
-                    status: 'answered'
-                });
-                
-                startWebRTC();
-            } catch (error) {
-                alert('কল একসেপ্ট ব্যর্থ: ' + error.message);
-            }
-        }
-
-        // Reject incoming call
-        function rejectCall() {
-            document.getElementById('incoming-call').classList.remove('active');
-            rdb.ref('calls/' + currentCallId).update({
-                status: 'rejected'
-            });
-            currentCallId = null;
-        }
-
-        // End call
-        function endCall() {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            
-            if (remoteStream) {
-                remoteStream.getTracks().forEach(track => track.stop());
-                remoteStream = null;
-            }
-            
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            
-            document.getElementById('call-screen').classList.remove('active');
-            document.getElementById('incoming-call').classList.remove('active');
-            
-            if (currentCallId) {
-                rdb.ref('calls/' + currentCallId).remove();
-                currentCallId = null;
-            }
-        }
-
-        // Generate unique call ID
-        function generateCallId() {
-            return 'call_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Start WebRTC connection (simplified)
-        function startWebRTC() {
-            // This is a simplified version. In a real app, you'd need proper signaling
-            alert('WebRTC connection started - This would connect the call in a real implementation');
-        }
-
-        // Upload video from URL
-        async function uploadVideoFromUrl() {
-            const videoUrl = document.getElementById('video-url').value;
-            const videoTitle = document.getElementById('video-title-url').value;
-            const videoDesc = document.getElementById('video-desc-url').value;
-            
-            if (!videoUrl || !videoTitle) {
-                alert('দয়া করে ভিডিও URL এবং শিরোনাম প্রদান করুন।');
+            if (amount < MIN_WITHDRAW_TAKA) {
+                withdrawStatus.textContent = `ন্যূনতম উত্তোলন পরিমাণ ${MIN_WITHDRAW_TAKA} টাকা।`;
+                withdrawStatus.className = 'error-message';
                 return;
             }
             
-            try {
-                await db.collection('videos').add({
-                    title: videoTitle,
-                    description: videoDesc,
-                    url: videoUrl,
-                    uploaderId: currentUser.uid,
-                    uploaderName: currentUser.displayName,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    views: 0,
-                    likes: 0
-                });
-                
-                alert('ভিডিও সফলভাবে আপলোড হয়েছে!');
-                document.getElementById('video-url').value = '';
-                document.getElementById('video-title-url').value = '';
-                document.getElementById('video-desc-url').value = '';
-                
-                showScreen('home-screen');
-            } catch (error) {
-                alert('ভিডিও আপলোড ব্যর্থ: ' + error.message);
+            if (amount > totalEarnings) {
+                withdrawStatus.textContent = `পর্যাপ্ত ব্যালেন্স নেই। আপনার আছে ${totalEarnings.toFixed(2)} টাকা।`;
+                withdrawStatus.className = 'error-message';
+                return;
             }
-        }
-
-        // Virtual Keyboard Functions
-        function showKeyboard() {
-            document.getElementById('virtual-keyboard').style.display = 'block';
-        }
-        
-        function hideKeyboard() {
-            document.getElementById('virtual-keyboard').style.display = 'none';
-        }
-        
-        function typeKey(key) {
-            const messageInput = document.getElementById('message-input');
-            messageInput.value += key;
-            messageInput.focus();
-        }
-        
-        function backspace() {
-            const messageInput = document.getElementById('message-input');
-            messageInput.value = messageInput.value.slice(0, -1);
-            messageInput.focus();
-        }
-
-        // Other utility functions
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            document.getElementById(screenId).classList.add('active');
-            hideKeyboard();
-        }
-
-        function toggleLike(button) {
-            button.classList.toggle('liked');
-            const icon = button.querySelector('i');
-            if (button.classList.contains('liked')) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                button.querySelector('span').textContent = 'লাইকড';
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                button.querySelector('span').textContent = 'লাইক';
+            
+            if (!paymentMethod) {
+                withdrawStatus.textContent = 'দয়া করে একটি পেমেন্ট মাধ্যম নির্বাচন করুন।';
+                withdrawStatus.className = 'error-message';
+                return;
             }
+            
+            if (!phoneNumber || !/^01[3-9][0-9]{8}$/.test(phoneNumber)) {
+                withdrawStatus.textContent = 'দয়া করে একটি বৈধ বাংলাদেশী মোবাইল নম্বর লিখুন।';
+                withdrawStatus.className = 'error-message';
+                return;
+            }
+            
+            // Calculate points to deduct
+            let remainingAmount = amount;
+            
+            if (referralEarnings > 0) {
+                const referralDeduction = Math.min(referralEarnings, remainingAmount);
+                referralEarnings -= referralDeduction;
+                remainingAmount -= referralDeduction;
+            }
+            
+            if (remainingAmount > 0) {
+                earnedPoints -= remainingAmount;
+                if (earnedPoints < 0) earnedPoints = 0;
+            }
+            
+            // Save and update UI
+            saveUserData();
+            updateUI();
+            
+            // Prepare withdrawal message
+            const message = `📌 নতুন উত্তোলন অনুরোধ 📌\n\n` +
+                             `👤 ব্যবহারকারী আইডি: ${userId}\n` +
+                             `💰 পরিমাণ: ${amount} টাকা\n` +
+                             `📱 মাধ্যম: ${paymentMethod.toUpperCase()}\n` +
+                             `📞 ফোন: ${phoneNumber}\n\n` +
+                             `📊 দেখা বিজ্ঞাপন: ${watchedAdsCount}\n` +
+                             `👥 আমন্ত্রিত: ${referralCount}\n` +
+                             `💵 মোট আয়: ${totalEarnings.toFixed(2)} টাকা`;
+            
+            // Send to admin via Telegram
+            sendWithdrawRequestToAdmin(message);
+            
+            // Show success message
+            withdrawStatus.textContent = 'উত্তোলন অনুরোধ সফলভাবে জমা দেওয়া হয়েছে! প্রসেসিং করতে ২৪-৪৮ ঘন্টা সময় লাগতে পারে।';
+            withdrawStatus.className = 'success-message';
+            
+            // Show notification
+            showNotification('আপনার উত্তোলন অনুরোধ পাঠানো হয়েছে!', 'success');
+            
+            // Reset form after 3 seconds
+            setTimeout(() => {
+                document.getElementById('withdraw-section').style.display = 'none';
+            }, 3000);
         }
 
-        // Initialize app
-        window.onload = function() {
-            // Firebase auth state will handle the rest
-        };
+        // Send withdrawal request to admin via Telegram bot
+        function sendWithdrawRequestToAdmin(message) {
+            // Telegram API URL তৈরি করুন
+            const apiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${encodeURIComponent(message)}`;
+            
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('উত্তোলন অনুরোধ অ্যাডমিন에게 পাঠানো হয়েছে');
+                    } else {
+                        console.error('উত্তোলন অনুরোধ পাঠানো যায়নি:', data);
+                    }
+                })
+                .catch(error => console.error('মেসেজ পাঠাতে ত্রুটি:', error));
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            notificationText.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize the app when page loads
+        window.onload = initApp;
     </script>
 </body>
 </html>
