@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Max</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: #ff0000;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 8px;
+        }
+        
+        .header-icons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .header-icons i {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        /* Navigation Styles */
+        nav {
+            background-color: white;
+            padding: 10px 15px;
+            overflow-x: auto;
+            white-space: nowrap;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        nav a {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-right: 10px;
+            background-color: #f2f2f2;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        nav a.active {
+            background-color: #333;
+            color: white;
+        }
+        
+        /* Main Content Styles */
+        main {
+            padding-bottom: 70px;
+        }
+        
+        .video-container {
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            background-color: #333;
+            position: relative;
+        }
+        
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .video-info {
+            padding: 10px 15px;
+        }
+        
+        .video-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .video-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 10px;
+        }
+        
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #606060;
+            cursor: pointer;
+        }
+        
+        .action-btn i {
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+        
+        .action-btn.liked {
+            color: #ff0000;
+        }
+        
+        /* Video Player Screen */
+        .video-player-screen {
+            background-color: black;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .video-player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            color: white;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .video-player {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .video-player video {
+            width: 100%;
+            max-height: 100%;
+        }
+        
+        .video-player-controls {
+            padding: 15px;
+            color: white;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .video-player-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .video-player-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #e5e5e5;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #606060;
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            color: #ff0000;
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+        
+        /* Authentication Screens */
+        .auth-screen {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+        
+        .auth-form {
+            width: 100%;
+            max-width: 350px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ff0000;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .auth-switch {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .auth-switch a {
+            color: #ff0000;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* Profile Screen */
+        .profile-screen {
+            padding: 20px;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #777;
+        }
+        
+        .profile-info h2 {
+            margin-bottom: 5px;
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #606060;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .profile-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background-color: #f2f2f2;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .profile-btn.primary {
+            background-color: #ff0000;
+            color: white;
+        }
+        
+        .profile-details {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .profile-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .profile-detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #606060;
+        }
+        
+        /* Messenger Screens */
+        .messenger-screen {
+            padding: 15px;
+            height: calc(100vh - 140px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .new-message-btn {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .chat-list {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+            cursor: pointer;
+        }
+        
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #777;
+        }
+        
+        .chat-info {
+            flex: 1;
+        }
+        
+        .chat-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .chat-last-msg {
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .chat-time {
+            font-size: 12px;
+            color: #909090;
+        }
+        
+        /* Individual Chat Screen */
+        .chat-screen {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: white;
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #ff0000;
+            color: white;
+        }
+        
+        .chat-header-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+        
+        .chat-header-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .chat-header-status {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .chat-call-options {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .chat-call-options i {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            position: relative;
+        }
+        
+        .message.received {
+            align-self: flex-start;
+            background-color: #f0f0f0;
+            border-top-left-radius: 4px;
+        }
+        
+        .message.sent {
+            align-self: flex-end;
+            background-color: #ff0000;
+            color: white;
+            border-top-right-radius: 4px;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            margin-top: 5px;
+            opacity: 0.7;
+            text-align: right;
+        }
+        
+        .message-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .message-action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 5px;
+        }
+        
+        .message-action-btn:hover {
+            color: #ff0000;
+        }
+        
+        .chat-input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #e5e5e5;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #e5e5e5;
+            border-radius: 24px;
+            font-size: 16px;
+        }
+        
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* Call Screen */
+        .call-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: black;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .call-screen.active {
+            display: flex;
+        }
+        
+        .call-video-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .remote-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .local-video {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            height: 160px;
+            border: 2px solid white;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .call-controls {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .call-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .call-btn.end-call {
+            background-color: #ff0000;
+            color: white;
+        }
+        
+        .call-btn.accept-call {
+            background-color: #25D366;
+            color: white;
+        }
+        
+        .call-info {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+        }
+        
+        /* New Message Screen */
+        .new-message-screen {
+            padding: 15px;
+            height: calc(100vh - 140px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-user-box {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .search-user-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 16px;
+        }
+        
+        .search-user-btn {
+            padding: 0 20px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+        }
+        
+        .user-results {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .user-result-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+            cursor: pointer;
+        }
+        
+        .user-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-result-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #777;
+        }
+        
+        .user-result-info {
+            flex: 1;
+        }
+        
+        .user-result-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .user-result-username {
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        /* Virtual Keyboard */
+        .virtual-keyboard {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .keyboard-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .keyboard-key {
+            flex: 1;
+            height: 45px;
+            margin: 0 3px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .keyboard-key.space {
+            flex: 4;
+        }
+        
+        .keyboard-key.enter {
+            flex: 2;
+            background-color: #ff0000;
+            color: white;
+        }
+        
+        .keyboard-key.backspace {
+            flex: 2;
+            background-color: #666;
+            color: white;
+        }
+        
+        .keyboard-key:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .keyboard-key.enter:hover {
+            background-color: #cc0000;
+        }
+        
+        .keyboard-key.backspace:hover {
+            background-color: #555;
+        }
+        
+        /* Search Screen */
+        .search-screen {
+            padding: 15px;
+        }
+        
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 16px;
+        }
+        
+        .search-btn {
+            padding: 0 20px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+        }
+        
+        .search-results {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .search-result-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+            cursor: pointer;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #777;
+        }
+        
+        .search-result-info {
+            flex: 1;
+        }
+        
+        .search-result-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .search-result-username {
+            color: #606060;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .search-result-bio {
+            color: #909090;
+            font-size: 13px;
+        }
+        
+        .add-friend-btn {
+            padding: 8px 15px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .add-friend-btn.added {
+            background-color: #25D366;
+        }
+        
+        /* Friends Screen */
+        .friends-screen {
+            padding: 15px;
+        }
+        
+        .friends-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .friend-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .friend-tab.active {
+            border-bottom: 2px solid #ff0000;
+            color: #ff0000;
+            font-weight: 500;
+        }
+        
+        .friends-list {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .friend-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .friend-item:last-child {
+            border-bottom: none;
+        }
+        
+        .friend-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #777;
+        }
+        
+        .friend-info {
+            flex: 1;
+        }
+        
+        .friend-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .friend-username {
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .friend-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .message-friend-btn {
+            padding: 8px 15px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* Upload Screen */
+        .upload-screen {
+            padding: 20px;
+        }
+        
+        .upload-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .upload-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .upload-tab.active {
+            border-bottom: 2px solid #ff0000;
+            color: #ff0000;
+            font-weight: 500;
+        }
+        
+        .upload-section {
+            display: none;
+        }
+        
+        .upload-section.active {
+            display: block;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        .upload-area i {
+            font-size: 40px;
+            color: #606060;
+            margin-bottom: 10px;
+        }
+        
+        .upload-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .video-url-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .url-upload-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .upload-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .back-btn {
+            cursor: pointer;
+        }
+        
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+            text-align: center;
+            background-color: #ff0000;
+            color: white;
+        }
+        
+        .welcome-screen h1 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .welcome-screen p {
+            margin-bottom: 30px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .welcome-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .welcome-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .welcome-btn.primary {
+            background-color: white;
+            color: #ff0000;
+        }
+        
+        .welcome-btn.secondary {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        /* Incoming Call Notification */
+        .incoming-call {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            text-align: center;
+            display: none;
+        }
+        
+        .incoming-call.active {
+            display: block;
+        }
+        
+        .caller-info {
+            margin-bottom: 20px;
+        }
+        
+        .call-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .call-action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .accept-call-btn {
+            background-color: #25D366;
+            color: white;
+        }
+        
+        .reject-call-btn {
+            background-color: #ff0000;
+            color: white;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen active">
+        <div class="welcome-screen">
+            <div class="logo" style="font-size: 28px; margin-bottom: 20px;">
+                <i class="fab fa-youtube"></i> YouTube Max
+            </div>
+            <h1>YouTube Max এ স্বাগতম</h1>
+            <p>ভিডিও দেখুন, বন্ধুদের সাথে কানেক্ট হোন এবং মেসেজ আদান-প্রদান করুন</p>
+            <div class="welcome-buttons">
+                <button class="welcome-btn primary" onclick="showScreen('login-screen')">লগ ইন</button>
+                <button class="welcome-btn secondary" onclick="showScreen('signup-screen')">সাইন আপ</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Header -->
+    <header id="app-header" class="hidden">
+        <div class="logo">
+            <i class="fab fa-youtube"></i> YouTube Max
+        </div>
+        <div class="header-icons">
+            <i class="fas fa-search" onclick="showScreen('search-screen')"></i>
+            <i class="fas fa-user-friends" onclick="showScreen('friends-screen')"></i>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+    </header>
+    
+    <!-- Navigation -->
+    <nav id="app-nav" class="hidden">
+        <a href="#" class="active">সব</a>
+        <a href="#">গান</a>
+        <a href="#">খেলা</a>
+        <a href="#">লাইভ</a>
+        <a href="#">রান্না</a>
+        <a href="#">কমেডি</a>
+        <a href="#">শিক্ষামূলক</a>
+    </nav>
+    
+    <!-- Main Content -->
+    <main id="home-screen" class="screen">
+        <!-- Video 1 -->
+        <div class="video-container" onclick="openVideo('বাংলাদেশের সেরা ১০টি পর্যটন স্থান', 'ট্রাভেল বাংলাদেশ', '২.৫ লাখ ভিউ • ৩ দিন আগে', 'video1')">
+            <div class="video-thumbnail">
+                <img src="https://via.placeholder.com/500x280/ff0000/ffffff?text=YouTube+Max" alt="Video Thumbnail">
+                <div class="video-duration">10:25</div>
+            </div>
+            <div class="video-info">
+                <div class="video-title">বাংলাদেশের সেরা ১০টি পর্যটন স্থান</div>
+                <div class="video-meta">
+                    <span>ট্রাভেল বাংলাদেশ</span>
+                    <span>২.৫ লাখ ভিউ • ৩ দিন আগে</span>
+                </div>
+                <div class="video-actions">
+                    <div class="action-btn" onclick="event.stopPropagation(); toggleLike(this)">
+                        <i class="far fa-thumbs-up"></i>
+                        <span>লাইক</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="far fa-thumbs-down"></i>
+                        <span>ডিসলাইক</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="far fa-comment"></i>
+                        <span>কমেন্ট</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="fas fa-share"></i>
+                        <span>শেয়ার</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Video 2 -->
+        <div class="video-container" onclick="openVideo('নতুন বাংলা গান ২০২৩ | জনপ্রিয় গান', 'মিউজিক বাংলা', '৫.২ লাখ ভিউ • ১ সপ্তাহ আগে', 'video2')">
+            <div class="video-thumbnail">
+                <img src="https://via.placeholder.com/500x280/0000ff/ffffff?text=Music+Video" alt="Video Thumbnail">
+                <div class="video-duration">4:15</div>
+            </div>
+            <div class="video-info">
+                <div class="video-title">নতুন বাংলা গান ২০২৩ | জনপ্রিয় গান</div>
+                <div class="video-meta">
+                    <span>মিউজিক বাংলা</span>
+                    <span>৫.২ লাখ ভিউ • ১ সপ্তাহ আগে</span>
+                </div>
+                <div class="video-actions">
+                    <div class="action-btn" onclick="event.stopPropagation(); toggleLike(this)">
+                        <i class="far fa-thumbs-up"></i>
+                        <span>লাইক</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="far fa-thumbs-down"></i>
+                        <span>ডিসলাইক</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="far fa-comment"></i>
+                        <span>কমেন্ট</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="fas fa-share"></i>
+                        <span>শেয়ার</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Video 3 -->
+        <div class="video-container" onclick="openVideo('বিরিয়ানি রান্নার সহজ পদ্ধতি | রেস্টুরেন্ট স্টাইল', 'রান্নাঘর', '৮.৭ লাখ ভিউ • ১ মাস আগে', 'video3')">
+            <div class="video-thumbnail">
+                <img src="https://via.placeholder.com/500x280/00aa00/ffffff?text=Cooking+Show" alt="Video Thumbnail">
+                <div class="video-duration">15:40</div>
+            </div>
+            <div class="video-info">
+                <div class="video-title">বিরিয়ানি রান্নার সহজ পদ্ধতি | রেস্টুরেন্ট স্টাইল</div>
+                <div class="video-meta">
+                    <span>রান্নাঘর</span>
+                    <span>৮.৭ লাখ ভিউ • ১ মাস আগে</span>
+                </div>
+                <div class="video-actions">
+                    <div class="action-btn" onclick="event.stopPropagation(); toggleLike(this)">
+                        <i class="far fa-thumbs-up"></i>
+                        <span>লাইক</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="far fa-thumbs-down"></i>
+                        <span>ডিসলাইক</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="far fa-comment"></i>
+                        <span>কমেন্ট</span>
+                    </div>
+                    <div class="action-btn" onclick="event.stopPropagation()">
+                        <i class="fas fa-share"></i>
+                        <span>শেয়ার</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Video Player Screen -->
+    <div id="video-player-screen" class="screen">
+        <div class="video-player-screen">
+            <div class="video-player-header">
+                <div class="back-btn" onclick="showScreen('home-screen')">
+                    <i class="fas fa-arrow-left" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div>ভিডিও</div>
+                <div></div>
+            </div>
+            <div class="video-player">
+                <video id="video-player" controls>
+                    <source src="" type="video/mp4">
+                    আপনার ব্রাউজার ভিডিও সমর্থন করে না।
+                </video>
+            </div>
+            <div class="video-player-controls">
+                <div class="video-player-title" id="player-title">ভিডিও টাইটেল</div>
+                <div class="video-player-meta">
+                    <span id="player-channel">চ্যানেল নাম</span>
+                    <span id="player-views">ভিউ সংখ্যা</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+        <div class="auth-screen">
+            <div class="auth-form">
+                <h2>লগ ইন</h2>
+                <div class="form-group">
+                    <label for="login-email">ইমেইল বা ইউজারনেম</label>
+                    <input type="text" id="login-email" placeholder="আপনার ইমেইল বা ইউজারনেম দিন">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">পাসওয়ার্ড</label>
+                    <input type="password" id="login-password" placeholder="আপনার পাসওয়ার্ড দিন">
+                </div>
+                <button class="auth-btn" onclick="login()">লগ ইন</button>
+                <div class="auth-switch">
+                    একাউন্ট নেই? <a href="#" onclick="showScreen('signup-screen')">সাইন আপ করুন</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Signup Screen -->
+    <div id="signup-screen" class="screen">
+        <div class="auth-screen">
+            <div class="auth-form">
+                <h2>সাইন আপ</h2>
+                <div class="form-group">
+                    <label for="signup-name">পুরো নাম</label>
+                    <input type="text" id="signup-name" placeholder="আপনার পুরো নাম দিন">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">ইমেইল</label>
+                    <input type="email" id="signup-email" placeholder="আপনার ইমেইল দিন">
+                </div>
+                <div class="form-group">
+                    <label for="signup-username">ইউজারনেম</label>
+                    <input type="text" id="signup-username" placeholder="ইউজারনেম তৈরি করুন">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">পাসওয়ার্ড</label>
+                    <input type="password" id="signup-password" placeholder="পাসওয়ার্ড তৈরি করুন">
+                </div>
+                <div class="form-group">
+                    <label for="signup-bio">বায়ো</label>
+                    <textarea id="signup-bio" placeholder="আপনার সম্পর্কে সংক্ষেপে লিখুন"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="signup-location">অবস্থান</label>
+                    <input type="text" id="signup-location" placeholder="আপনার শহর/দেশ">
+                </div>
+                <div class="form-group">
+                    <label for="signup-birthdate">জন্ম তারিখ</label>
+                    <input type="date" id="signup-birthdate">
+                </div>
+                <button class="auth-btn" onclick="signup()">সাইন আপ</button>
+                <div class="auth-switch">
+                    ইতিমধ্যে একাউন্ট আছে? <a href="#" onclick="showScreen('login-screen')">লগ ইন করুন</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Screen -->
+    <div id="profile-screen" class="screen">
+        <div class="profile-screen">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-info">
+                    <h2 id="profile-name">রহিম আহমেদ</h2>
+                    <p id="profile-username">@rahim_ahmed</p>
+                    <div class="profile-stats">
+                        <div class="stat">
+                            <div class="stat-value" id="profile-videos">১৫৬</div>
+                            <div class="stat-label">ভিডিও</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="profile-subscribers">২৫.৪ক</div>
+                            <div class="stat-label">সাবস্ক্রাইবার</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="profile-likes">৩.২ক</div>
+                            <div class="stat-label">লাইক</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <div class="profile-btn primary" onclick="showScreen('upload-screen')">
+                    ভিডিও আপলোড
+                </div>
+                <div class="profile-btn" onclick="editProfile()">
+                    এডিট প্রোফাইল
+                </div>
+            </div>
+            
+            <div class="profile-details">
+                <h3>ব্যক্তিগত তথ্য</h3>
+                <div class="profile-detail-item">
+                    <span class="detail-label">ইমেইল:</span>
+                    <span id="profile-email">rahim@example.com</span>
+                </div>
+                <div class="profile-detail-item">
+                    <span class="detail-label">বায়ো:</span>
+                    <span id="profile-bio">আমি একজন ভিডিও ক্রিয়েটর। ভ্রমণ এবং রান্না নিয়ে ভিডিও তৈরি করতে পছন্দ করি।</span>
+                </div>
+                <div class="profile-detail-item">
+                    <span class="detail-label">অবস্থান:</span>
+                    <span id="profile-location">ঢাকা, বাংলাদেশ</span>
+                </div>
+                <div class="profile-detail-item">
+                    <span class="detail-label">জন্ম তারিখ:</span>
+                    <span id="profile-birthdate">১৫ মার্চ, ১৯৯০</span>
+                </div>
+                <div class="profile-detail-item">
+                    <span class="detail-label">একাউন্ট তৈরি:</span>
+                    <span id="profile-joined">১৫ জানুয়ারি, ২০২২</span>
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 20px;">আমার ভিডিওসমূহ</h3>
+            <div class="video-container" onclick="openVideo('আমার প্রথম ভিডিও | ভ্রমণ অভিজ্ঞতা', 'রহিম আহমেদ', '১.২ লাখ ভিউ • ২ মাস আগে', 'video4')">
+                <div class="video-thumbnail">
+                    <img src="https://via.placeholder.com/500x280/ff6600/ffffff?text=My+Video" alt="Video Thumbnail">
+                    <div class="video-duration">8:45</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">আমার প্রথম ভিডিও | ভ্রমণ অভিজ্ঞতা</div>
+                    <div class="video-meta">
+                        <span>রহিম আহমেদ</span>
+                        <span>১.২ লাখ ভিউ • ২ মাস আগে</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Messenger Screen -->
+    <div id="messenger-screen" class="screen">
+        <div class="messenger-screen">
+            <button class="new-message-btn" onclick="showScreen('new-message-screen')">
+                <i class="fas fa-edit"></i> নতুন মেসেজ
+            </button>
+            <h2>মেসেজেস</h2>
+            <div class="chat-list" id="chat-list">
+                <!-- Chat items will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- New Message Screen -->
+    <div id="new-message-screen" class="screen">
+        <div class="new-message-screen">
+            <div class="chat-header">
+                <div class="back-btn" onclick="showScreen('messenger-screen')">
+                    <i class="fas fa-arrow-left" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div class="chat-header-info">
+                    <div class="chat-header-name">নতুন মেসেজ</div>
+                    <div class="chat-header-status">একজন ইউজার নির্বাচন করুন</div>
+                </div>
+                <div></div>
+            </div>
+            
+            <div class="search-user-box">
+                <input type="text" class="search-user-input" id="search-user-input" placeholder="ইউজারনেম বা নাম দিয়ে সার্চ করুন...">
+                <button class="search-user-btn" onclick="searchUsersForMessage()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <div class="user-results" id="user-results">
+                <!-- User results will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Individual Chat Screen -->
+    <div id="chat-screen" class="screen">
+        <div class="chat-screen">
+            <div class="chat-header">
+                <div class="back-btn" onclick="showScreen('messenger-screen')">
+                    <i class="fas fa-arrow-left" style="color: white; font-size: 20px;"></i>
+                </div>
+                <div class="chat-header-info">
+                    <div class="chat-header-name" id="chat-with-name">করিম উদ্দিন</div>
+                    <div class="chat-header-status" id="chat-status">অনলাইন</div>
+                </div>
+                <div class="chat-call-options">
+                    <i class="fas fa-phone" onclick="startAudioCall()"></i>
+                    <i class="fas fa-video" onclick="startVideoCall()"></i>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will be dynamically added here -->
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="message-input" placeholder="এখানে মেসেজ লিখুন..." onfocus="showKeyboard()">
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Call Screen -->
+    <div id="call-screen" class="call-screen">
+        <div class="call-video-container">
+            <video id="remote-video" class="remote-video" autoplay></video>
+            <video id="local-video" class="local-video" autoplay muted></video>
+            <div class="call-info">
+                <h3 id="caller-name">করিম উদ্দিন</h3>
+                <p id="call-status">কলিং...</p>
+            </div>
+        </div>
+        <div class="call-controls">
+            <button class="call-btn end-call" onclick="endCall()">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Incoming Call Notification -->
+    <div id="incoming-call" class="incoming-call">
+        <div class="caller-info">
+            <h3 id="incoming-caller-name">করিম উদ্দিন</h3>
+            <p>ইনকামিং কল...</p>
+        </div>
+        <div class="call-actions">
+            <button class="call-action-btn accept-call-btn" onclick="acceptCall()">
+                <i class="fas fa-phone"></i> একসেপ্ট
+            </button>
+            <button class="call-action-btn reject-call-btn" onclick="rejectCall()">
+                <i class="fas fa-phone-slash"></i> রিজেক্ট
+            </button>
+        </div>
+    </div>
+    
+    <!-- Virtual Keyboard -->
+    <div class="virtual-keyboard" id="virtual-keyboard">
+        <div class="keyboard-row">
+            <div class="keyboard-key" onclick="typeKey('1')">1</div>
+            <div class="keyboard-key" onclick="typeKey('2')">2</div>
+            <div class="keyboard-key" onclick="typeKey('3')">3</div>
+            <div class="keyboard-key" onclick="typeKey('4')">4</div>
+            <div class="keyboard-key" onclick="typeKey('5')">5</div>
+            <div class="keyboard-key" onclick="typeKey('6')">6</div>
+            <div class="keyboard-key" onclick="typeKey('7')">7</div>
+            <div class="keyboard-key" onclick="typeKey('8')">8</div>
+            <div class="keyboard-key" onclick="typeKey('9')">9</div>
+            <div class="keyboard-key" onclick="typeKey('0')">0</div>
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-key" onclick="typeKey('q')">q</div>
+            <div class="keyboard-key" onclick="typeKey('w')">w</div>
+            <div class="keyboard-key" onclick="typeKey('e')">e</div>
+            <div class="keyboard-key" onclick="typeKey('r')">r</div>
+            <div class="keyboard-key" onclick="typeKey('t')">t</div>
+            <div class="keyboard-key" onclick="typeKey('y')">y</div>
+            <div class="keyboard-key" onclick="typeKey('u')">u</div>
+            <div class="keyboard-key" onclick="typeKey('i')">i</div>
+            <div class="keyboard-key" onclick="typeKey('o')">o</div>
+            <div class="keyboard-key" onclick="typeKey('p')">p</div>
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-key" onclick="typeKey('a')">a</div>
+            <div class="keyboard-key" onclick="typeKey('s')">s</div>
+            <div class="keyboard-key" onclick="typeKey('d')">d</div>
+            <div class="keyboard-key" onclick="typeKey('f')">f</div>
+            <div class="keyboard-key" onclick="typeKey('g')">g</div>
+            <div class="keyboard-key" onclick="typeKey('h')">h</div>
+            <div class="keyboard-key" onclick="typeKey('j')">j</div>
+            <div class="keyboard-key" onclick="typeKey('k')">k</div>
+            <div class="keyboard-key" onclick="typeKey('l')">l</div>
+            <div class="keyboard-key backspace" onclick="backspace()"><i class="fas fa-backspace"></i></div>
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-key" onclick="typeKey('z')">z</div>
+            <div class="keyboard-key" onclick="typeKey('x')">x</div>
+            <div class="keyboard-key" onclick="typeKey('c')">c</div>
+            <div class="keyboard-key" onclick="typeKey('v')">v</div>
+            <div class="keyboard-key" onclick="typeKey('b')">b</div>
+            <div class="keyboard-key" onclick="typeKey('n')">n</div>
+            <div class="keyboard-key" onclick="typeKey('m')">m</div>
+            <div class="keyboard-key" onclick="typeKey(',')">,</div>
+            <div class="keyboard-key" onclick="typeKey('.')">.</div>
+            <div class="keyboard-key" onclick="typeKey('?')">?</div>
+        </div>
+        <div class="keyboard-row">
+            <div class="keyboard-key" onclick="typeKey('@')">@</div>
+            <div class="keyboard-key" onclick="typeKey('#')">#</div>
+            <div class="keyboard-key space" onclick="typeKey(' ')">SPACE</div>
+            <div class="keyboard-key enter" onclick="sendMessage()">SEND</div>
+        </div>
+    </div>
+    
+    <!-- Search Screen -->
+    <div id="search-screen" class="screen">
+        <div class="search-screen">
+            <div class="search-box">
+                <input type="text" class="search-input" id="search-query" placeholder="ইউজারনেম বা নাম দিয়ে সার্চ করুন...">
+                <button class="search-btn" onclick="searchUsers()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <div class="search-results" id="search-results">
+                <div class="search-result-item">
+                    <div class="search-result-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="search-result-info">
+                        <div class="search-result-name">করিম উদ্দিন</div>
+                        <div class="search-result-username">@karim_uddin</div>
+                        <div class="search-result-bio">ভিডিও ক্রিয়েটর | ট্রাভেল ভ্লগার</div>
+                    </div>
+                    <button class="add-friend-btn" onclick="addFriend(this, 'করিম উদ্দিন')">এড ফ্রেন্ড</button>
+                </div>
+                
+                <div class="search-result-item">
+                    <div class="search-result-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="search-result-info">
+                        <div class="search-result-name">সুমাইয়া আক্তার</div>
+                        <div class="search-result-username">@sumaiya_akter</div>
+                        <div class="search-result-bio">মিউজিকিয়ান | গায়িকা</div>
+                    </div>
+                    <button class="add-friend-btn" onclick="addFriend(this, 'সুমাইয়া আক্তার')">এড ফ্রেন্ড</button>
+                </div>
+                
+                <div class="search-result-item">
+                    <div class="search-result-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="search-result-info">
+                        <div class="search-result-name">রাজীব হাসান</div>
+                        <div class="search-result-username">@rajib_hassan</div>
+                        <div class="search-result-bio">কমেডিয়ান | কন্টেন্ট ক্রিয়েটর</div>
+                    </div>
+                    <button class="add-friend-btn" onclick="addFriend(this, 'রাজীব হাসান')">এড ফ্রেন্ড</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Friends Screen -->
+    <div id="friends-screen" class="screen">
+        <div class="friends-screen">
+            <h2>বন্ধু</h2>
+            <div class="friends-tabs">
+                <div class="friend-tab active" onclick="switchFriendTab('all-friends')">সব বন্ধু</div>
+                <div class="friend-tab" onclick="switchFriendTab('friend-requests')">ফ্রেন্ড রিকোয়েস্ট</div>
+            </div>
+            
+            <div class="friends-list" id="all-friends">
+                <!-- Friends will be dynamically added here -->
+            </div>
+            
+            <div class="friends-list hidden" id="friend-requests">
+                <div class="friend-item">
+                    <div class="friend-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="friend-info">
+                        <div class="friend-name">আনিকা ইসলাম</div>
+                        <div class="friend-username">@anika_islam</div>
+                    </div>
+                    <div class="friend-actions">
+                        <button class="add-friend-btn" style="background-color: #25D366;" onclick="acceptFriendRequest(this, 'আনিকা ইসলাম')">একসেপ্ট</button>
+                        <button class="add-friend-btn" style="background-color: #ff0000;" onclick="declineFriendRequest(this)">ডিক্লাইন</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upload Screen -->
+    <div id="upload-screen" class="screen">
+        <div class="upload-screen">
+            <h2>ভিডিও আপলোড</h2>
+            
+            <div class="upload-tabs">
+                <div class="upload-tab active" onclick="switchUploadTab('file-upload')">ফাইল আপলোড</div>
+                <div class="upload-tab" onclick="switchUploadTab('url-upload')">URL লিংক</div>
+            </div>
+            
+            <!-- ফাইল আপলোড সেকশন -->
+            <div id="file-upload" class="upload-section active">
+                <div class="upload-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>ভিডিও ফাইল এখানে ক্লিক করে বা ড্র্যাগ করে আপলোড করুন</p>
+                </div>
+                
+                <div class="upload-form">
+                    <div class="form-group">
+                        <label for="video-title">ভিডিও টাইটেল</label>
+                        <input type="text" id="video-title" placeholder="ভিডিওর শিরোনাম দিন">
+                    </div>
+                    <div class="form-group">
+                        <label for="video-desc">ভিডিও বিবরণ</label>
+                        <textarea id="video-desc" placeholder="ভিডিওর বিবরণ দিন" style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="video-thumbnail">থাম্বনেইল নির্বাচন করুন</label>
+                        <input type="file" id="video-thumbnail" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <button class="upload-btn">আপলোড করুন</button>
+                </div>
+            </div>
+            
+            <!-- URL লিংক আপলোড সেকশন -->
+            <div id="url-upload" class="upload-section">
+                <div class="upload-form">
+                    <div class="form-group">
+                        <label for="video-url">ভিডিও URL লিংক</label>
+                        <input type="text" class="video-url-input" id="video-url" placeholder="ভিডিওর URL লিংক দিন (যেমন: YouTube, Vimeo, etc.)">
+                    </div>
+                    <div class="form-group">
+                        <label for="video-title-url">ভিডিও টাইটেল</label>
+                        <input type="text" id="video-title-url" placeholder="ভিডিওর শিরোনাম দিন">
+                    </div>
+                    <div class="form-group">
+                        <label for="video-desc-url">ভিডিও বিবরণ</label>
+                        <textarea id="video-desc-url" placeholder="ভিডিওর বিবরণ দিন" style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                    </div>
+                    <button class="url-upload-btn" onclick="uploadVideoFromUrl()">URL থেকে আপলোড করুন</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav" id="app-bottom-nav" class="hidden">
+        <div class="nav-item active" onclick="showScreen('home-screen')">
+            <i class="fas fa-home"></i>
+            <span>হোম</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('messenger-screen')">
+            <i class="fas fa-comment-dots"></i>
+            <span>মেসেনজার</span>
+        </div>
+        <div class="nav-item" onclick="showUploadScreen()">
+            <i class="fas fa-plus-square"></i>
+            <span>আপলোড</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('profile-screen')">
+            <i class="fas fa-user"></i>
+            <span>প্রোফাইল</span>
+        </div>
+    </div>
+    
+    <script>
+        // Firebase Configuration - আপনার Firebase project configuration এখানে বসান
+        const firebaseConfig = {
+  apiKey: "AIzaSyDoSoN_l6W6EzVsP9gEMKLz96_l13cPvPU",
+  authDomain: "fir-8089e.firebaseapp.com",
+  databaseURL: "https://fir-8089e-default-rtdb.firebaseio.com",
+  projectId: "fir-8089e",
+  storageBucket: "fir-8089e.firebasestorage.app",
+  messagingSenderId: "582969221929",
+  appId: "1:582969221929:web:790d39fc900ed270bd8d38",
+  measurementId: "G-WFP11LE0L7"
+};
+
+
+        // Firebase Initialize
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        const rdb = firebase.database();
+
+        // Global variables
+        let currentUser = null;
+        let currentChatUser = null;
+        let currentChatId = null;
+        let localStream = null;
+        let remoteStream = null;
+        let peerConnection = null;
+        let currentCallId = null;
+        let isCaller = false;
+
+        // Firebase Auth State Listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                showAppScreens();
+                setupPresence();
+                loadUserProfile(user.uid);
+            } else {
+                currentUser = null;
+                showScreen('welcome-screen');
+            }
+        });
+
+        // Show app screens after login
+        function showAppScreens() {
+            document.getElementById('app-header').classList.remove('hidden');
+            document.getElementById('app-nav').classList.remove('hidden');
+            document.getElementById('app-bottom-nav').classList.remove('hidden');
+            showScreen('home-screen');
+        }
+
+        // Setup user presence
+        function setupPresence() {
+            const uid = currentUser.uid;
+            const userStatusRef = rdb.ref('/presence/' + uid);
+            
+            // Set user online
+            userStatusRef.set({
+                online: true,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            // Handle disconnect
+            userStatusRef.onDisconnect().set({
+                online: false,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        // Login function with Firebase
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                alert('দয়া করে ইমেইল এবং পাসওয়ার্ড প্রদান করুন।');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                alert('সফলভাবে লগ ইন করা হয়েছে!');
+            } catch (error) {
+                alert('লগ ইন ব্যর্থ: ' + error.message);
+            }
+        }
+
+        // Signup function with Firebase
+        async function signup() {
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const username = document.getElementById('signup-username').value;
+            const password = document.getElementById('signup-password').value;
+            const bio = document.getElementById('signup-bio').value;
+            const location = document.getElementById('signup-location').value;
+            const birthdate = document.getElementById('signup-birthdate').value;
+            
+            if (!name || !email || !username || !password) {
+                alert('দয়া করে সমস্ত প্রয়োজনীয় তথ্য প্রদান করুন।');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Save user profile to Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    username: username,
+                    bio: bio || 'কোন বায়ো যোগ করা হয়নি',
+                    location: location || 'অজানা',
+                    birthdate: birthdate || 'অজানা',
+                    joined: new Date().toISOString(),
+                    videos: 0,
+                    subscribers: 0,
+                    likes: 0,
+                    profilePicture: ''
+                });
+                
+                alert('সফলভাবে একাউন্ট তৈরি করা হয়েছে!');
+            } catch (error) {
+                alert('সাইন আপ ব্যর্থ: ' + error.message);
+            }
+        }
+
+        // Load user profile from Firestore
+        async function loadUserProfile(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    const userData = doc.data();
+                    document.getElementById('profile-name').textContent = userData.name;
+                    document.getElementById('profile-username').textContent = '@' + userData.username;
+                    document.getElementById('profile-email').textContent = userData.email;
+                    document.getElementById('profile-bio').textContent = userData.bio;
+                    document.getElementById('profile-location').textContent = userData.location;
+                    document.getElementById('profile-birthdate').textContent = userData.birthdate;
+                    document.getElementById('profile-joined').textContent = new Date(userData.joined).toLocaleDateString('bn-BD');
+                    document.getElementById('profile-videos').textContent = userData.videos;
+                    document.getElementById('profile-subscribers').textContent = userData.subscribers;
+                    document.getElementById('profile-likes').textContent = userData.likes;
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+
+        // Send message function
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const messageText = messageInput.value.trim();
+            
+            if (!messageText || !currentChatId || !currentUser) return;
+            
+            try {
+                await db.collection('chats').doc(currentChatId).collection('messages').add({
+                    text: messageText,
+                    senderId: currentUser.uid,
+                    senderName: currentUser.displayName || 'User',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    type: 'text'
+                });
+                
+                messageInput.value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        }
+
+        // Load messages for a chat
+        function loadChatMessages(chatId) {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+            
+            db.collection('chats').doc(chatId).collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    chatMessages.innerHTML = '';
+                    snapshot.forEach((doc) => {
+                        const message = doc.data();
+                        const messageElement = createMessageElement(message);
+                        chatMessages.appendChild(messageElement);
+                    });
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                });
+        }
+
+        // Create message element with reply option
+        function createMessageElement(message) {
+            const messageElement = document.createElement('div');
+            const isSent = message.senderId === currentUser.uid;
+            
+            messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
+            messageElement.innerHTML = `
+                <div>${message.text}</div>
+                <div class="message-time">${new Date(message.timestamp?.toDate()).toLocaleTimeString('bn-BD')}</div>
+                <div class="message-actions">
+                    <button class="message-action-btn" onclick="replyToMessage('${message.text}')">
+                        <i class="fas fa-reply"></i> রিপ্লাই
+                    </button>
+                    ${isSent ? `
+                    <button class="message-action-btn" onclick="deleteMessage('${doc.id}')">
+                        <i class="fas fa-trash"></i> ডিলিট
+                    </button>
+                    ` : ''}
+                </div>
+            `;
+            
+            return messageElement;
+        }
+
+        // Reply to a message
+        function replyToMessage(messageText) {
+            const messageInput = document.getElementById('message-input');
+            messageInput.value = `Replying to: "${messageText}" - `;
+            messageInput.focus();
+        }
+
+        // Start audio call
+        async function startAudioCall() {
+            if (!currentChatUser) return;
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                setupCall(true);
+            } catch (error) {
+                alert('মাইক্রোফোন এক্সেস ব্যর্থ: ' + error.message);
+            }
+        }
+
+        // Start video call
+        async function startVideoCall() {
+            if (!currentChatUser) return;
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('local-video').srcObject = localStream;
+                setupCall(false);
+            } catch (error) {
+                alert('ক্যামেরা/মাইক্রোফোন এক্সেস ব্যর্থ: ' + error.message);
+            }
+        }
+
+        // Setup call
+        function setupCall(isAudioOnly) {
+            isCaller = true;
+            currentCallId = generateCallId();
+            
+            // Show call screen
+            document.getElementById('call-screen').classList.add('active');
+            document.getElementById('call-status').textContent = 'কলিং...';
+            
+            // Save call to Firebase
+            rdb.ref('calls/' + currentCallId).set({
+                callerId: currentUser.uid,
+                receiverId: currentChatUser.uid,
+                callType: isAudioOnly ? 'audio' : 'video',
+                status: 'calling',
+                timestamp: Date.now()
+            });
+            
+            // Listen for call answer
+            rdb.ref('calls/' + currentCallId).on('value', (snapshot) => {
+                const callData = snapshot.val();
+                if (callData && callData.status === 'answered') {
+                    document.getElementById('call-status').textContent = 'কানেক্টেড';
+                    // Start WebRTC connection
+                    startWebRTC();
+                } else if (callData && callData.status === 'rejected') {
+                    endCall();
+                    alert('কল রিজেক্ট করা হয়েছে');
+                }
+            });
+        }
+
+        // Listen for incoming calls
+        rdb.ref('calls').orderByChild('receiverId').equalTo(currentUser?.uid).on('child_added', (snapshot) => {
+            const callData = snapshot.val();
+            if (callData.status === 'calling') {
+                showIncomingCall(callData);
+            }
+        });
+
+        // Show incoming call notification
+        function showIncomingCall(callData) {
+            currentCallId = snapshot.key;
+            document.getElementById('incoming-caller-name').textContent = callData.callerName || 'Unknown';
+            document.getElementById('incoming-call').classList.add('active');
+        }
+
+        // Accept incoming call
+        async function acceptCall() {
+            document.getElementById('incoming-call').classList.remove('active');
+            
+            try {
+                if (callData.callType === 'video') {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    document.getElementById('local-video').srcObject = localStream;
+                } else {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                }
+                
+                document.getElementById('call-screen').classList.add('active');
+                document.getElementById('call-status').textContent = 'কানেক্টেড';
+                
+                // Update call status
+                rdb.ref('calls/' + currentCallId).update({
+                    status: 'answered'
+                });
+                
+                startWebRTC();
+            } catch (error) {
+                alert('কল একসেপ্ট ব্যর্থ: ' + error.message);
+            }
+        }
+
+        // Reject incoming call
+        function rejectCall() {
+            document.getElementById('incoming-call').classList.remove('active');
+            rdb.ref('calls/' + currentCallId).update({
+                status: 'rejected'
+            });
+            currentCallId = null;
+        }
+
+        // End call
+        function endCall() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            
+            if (remoteStream) {
+                remoteStream.getTracks().forEach(track => track.stop());
+                remoteStream = null;
+            }
+            
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            
+            document.getElementById('call-screen').classList.remove('active');
+            document.getElementById('incoming-call').classList.remove('active');
+            
+            if (currentCallId) {
+                rdb.ref('calls/' + currentCallId).remove();
+                currentCallId = null;
+            }
+        }
+
+        // Generate unique call ID
+        function generateCallId() {
+            return 'call_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Start WebRTC connection (simplified)
+        function startWebRTC() {
+            // This is a simplified version. In a real app, you'd need proper signaling
+            alert('WebRTC connection started - This would connect the call in a real implementation');
+        }
+
+        // Upload video from URL
+        async function uploadVideoFromUrl() {
+            const videoUrl = document.getElementById('video-url').value;
+            const videoTitle = document.getElementById('video-title-url').value;
+            const videoDesc = document.getElementById('video-desc-url').value;
+            
+            if (!videoUrl || !videoTitle) {
+                alert('দয়া করে ভিডিও URL এবং শিরোনাম প্রদান করুন।');
+                return;
+            }
+            
+            try {
+                await db.collection('videos').add({
+                    title: videoTitle,
+                    description: videoDesc,
+                    url: videoUrl,
+                    uploaderId: currentUser.uid,
+                    uploaderName: currentUser.displayName,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    views: 0,
+                    likes: 0
+                });
+                
+                alert('ভিডিও সফলভাবে আপলোড হয়েছে!');
+                document.getElementById('video-url').value = '';
+                document.getElementById('video-title-url').value = '';
+                document.getElementById('video-desc-url').value = '';
+                
+                showScreen('home-screen');
+            } catch (error) {
+                alert('ভিডিও আপলোড ব্যর্থ: ' + error.message);
+            }
+        }
+
+        // Virtual Keyboard Functions
+        function showKeyboard() {
+            document.getElementById('virtual-keyboard').style.display = 'block';
+        }
+        
+        function hideKeyboard() {
+            document.getElementById('virtual-keyboard').style.display = 'none';
+        }
+        
+        function typeKey(key) {
+            const messageInput = document.getElementById('message-input');
+            messageInput.value += key;
+            messageInput.focus();
+        }
+        
+        function backspace() {
+            const messageInput = document.getElementById('message-input');
+            messageInput.value = messageInput.value.slice(0, -1);
+            messageInput.focus();
+        }
+
+        // Other utility functions
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            hideKeyboard();
+        }
+
+        function toggleLike(button) {
+            button.classList.toggle('liked');
+            const icon = button.querySelector('i');
+            if (button.classList.contains('liked')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                button.querySelector('span').textContent = 'লাইকড';
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                button.querySelector('span').textContent = 'লাইক';
+            }
+        }
+
+        // Initialize app
+        window.onload = function() {
+            // Firebase auth state will handle the rest
+        };
+    </script>
+</body>
+</html>
